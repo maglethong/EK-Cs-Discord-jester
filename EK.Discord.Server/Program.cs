@@ -1,13 +1,15 @@
 using System.Diagnostics.CodeAnalysis;
+using Discord.WebSocket;
 
-namespace EK.Discord.Server;
+namespace EK.Discord.Server; 
 
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global", Justification = "WebServer Startup Class")]
 public class Program {
 
     public static void Main(string[] args) {
+        
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-
+        
         // Add services to the container.
 
         builder.Services.AddControllersWithViews();
@@ -45,7 +47,19 @@ public class Program {
                }
            );
 
+    #pragma warning disable CS4014
+        new Program().DiscordMain();
+    #pragma warning restore CS4014
+        
         app.Run();
+    }
+
+    private async Task DiscordMain() {
+        DiscordSocketClient client = new();
+        
+        // TODO do stuff with discord client
+        
+        await Task.Delay(-1);
     }
 
 }
