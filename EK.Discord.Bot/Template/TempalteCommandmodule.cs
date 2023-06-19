@@ -1,5 +1,6 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
+using Notion.Client;
 
 namespace EK.Discord.Bot.Template;
 
@@ -7,7 +8,7 @@ namespace EK.Discord.Bot.Template;
 ///     Template Command Module from https://discordnet.dev/guides/text_commands/intro.html
 /// </summary>
 public sealed class TemplateCommandModule : ModuleBase<SocketCommandContext> {
-
+    
     // ~ping -> pong
     [Command("ping")]
     [Summary("Echoes a message.")]
@@ -44,4 +45,38 @@ public sealed class TemplateCommandModule : ModuleBase<SocketCommandContext> {
         await ReplyAsync($"{userInfo.Username}#{userInfo.Discriminator}");
     }
 
+}
+
+/// <summary>
+///     Template Command Module from https://discordnet.dev/guides/text_commands/intro.html
+/// </summary>
+public sealed class NotionTemplateCommandModule : ModuleBase<SocketCommandContext> {
+
+
+    public NotionTemplateCommandModule(INotionClient notionClient) {
+        NotionClient = notionClient;
+    }
+
+    private INotionClient NotionClient { get; }
+
+
+    [Command("Get-Ashlyn-Str-From-Notion")]
+    [Summary("test")]
+    [Alias("notion")]
+    public async Task GetAshlynStr() {
+        var properties = await NotionClient
+                               .Databases
+                               .QueryAsync("0b5a5f4136af417b90ed38383fe69312", new DatabasesQueryParameters());
+
+
+        var str = properties.Results
+                            .Find(o => ((RichTextText) ((TitlePropertyValue) o.Properties["Skill"]).Title[0])
+                                       .PlainText
+                                       .Equals("STR")
+                            )!;
+
+        var strVal = ((NumberPropertyValue) str.Properties["Saving Throw"]).Number!;
+        
+        await ReplyAsync($"{strVal}");
+    }
 }

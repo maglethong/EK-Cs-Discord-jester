@@ -45,7 +45,7 @@ public sealed class DefaultDiscordCommandHandler : IDiscordCommandHandler {
         // created, along with the service provider for precondition checks.
         await CommandService.ExecuteAsync(context: context,
                                           argPos: argPos,
-                                          services: null
+                                          services: ServiceProvider
         );
     }
 

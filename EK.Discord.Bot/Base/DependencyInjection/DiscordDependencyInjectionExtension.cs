@@ -49,10 +49,13 @@ public static class DiscordDependencyInjectionExtension {
                     configuration?.Invoke(commandServiceConfiguration);
                     CommandService commandService = new CommandService(commandServiceConfiguration);
 
-                    // TODO -> Fix, entry assembly is probably the wrong one, since all commands are in Bot project
                     // Add all Classes of current assembly that inherit from ModuleBase<SocketCommandContext>
                     commandService.AddModulesAsync(Assembly.GetEntryAssembly(), sp)
                                   .Wait();
+                    if (Assembly.GetEntryAssembly() != Assembly.GetExecutingAssembly()) {
+                        commandService.AddModulesAsync(Assembly.GetExecutingAssembly(), sp)
+                                      .Wait();
+                    }
 
                     return commandService;
                 }

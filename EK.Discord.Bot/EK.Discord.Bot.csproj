@@ -18,6 +18,7 @@
     <!-- Other Dependencies -->
     <ItemGroup>
         <PackageReference Include="Discord.Net" />
+        <PackageReference Include="Notion.Net" />
     </ItemGroup>
 
     <!-- Sister Projects -->

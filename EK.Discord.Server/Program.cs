@@ -3,7 +3,6 @@ using Discord;
 using EK.Discord.Bot.Base.DependencyInjection;
 using EK.Discord.Server.Base.Configuration;
 using EK.Discord.Server.Base.Notion;
-using Notion.Client;
 
 namespace EK.Discord.Server;
 
