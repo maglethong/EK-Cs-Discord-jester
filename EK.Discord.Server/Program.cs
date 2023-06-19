@@ -3,6 +3,7 @@ using Discord;
 using EK.Discord.Bot.Base.DependencyInjection;
 using EK.Discord.Server.Base.Configuration;
 using EK.Discord.Server.Base.Notion;
+using EK.Discord.Server.TemplateComponent;
 
 namespace EK.Discord.Server;
 
@@ -25,6 +26,10 @@ public class Program {
                // Add Azure Clients
                .AddAzureKeyVaultSecretsManager(builder.Configuration);
 
+        // Att Component Configurations
+        builder.Services
+               .AddTemplateController();
+        
         // Build App
         WebApplication app = builder.Build();
 

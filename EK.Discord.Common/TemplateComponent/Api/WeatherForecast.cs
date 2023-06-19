@@ -1,4 +1,4 @@
-namespace EK.Discord.Common
+namespace EK.Discord.Common.TemplateComponent.Api
 {
     public class WeatherForecast
     {

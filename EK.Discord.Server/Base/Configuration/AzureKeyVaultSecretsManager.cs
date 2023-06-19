@@ -28,7 +28,12 @@ public class AzureKeyVaultSecretsManager : ISecretsManager {
         string ret = FallbackSecretsManager.GetSecret(secretName);
 
         if (string.IsNullOrWhiteSpace(ret)) {
-            ret = SecretClient.GetSecret(secretName.Replace("_", "-")).Value.Value;
+            try {
+                ret = SecretClient.GetSecret(secretName.Replace("_", "-")).Value.Value;
+            } catch (RequestFailedException e) {
+                Logger.LogError("Could connect to Azure Key Vault");
+                Logger.LogTrace(e, "Could connect to Azure Key Vault");
+            }
         }
             
         if (string.IsNullOrWhiteSpace(ret)) {
