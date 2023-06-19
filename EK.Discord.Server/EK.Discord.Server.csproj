@@ -7,7 +7,7 @@
 
   <!-- Other Dependencies -->
   <ItemGroup>
-    <PackageReference Include="Discord.Net"/>
+    <PackageReference Include="Discord.Net" />
   </ItemGroup>
   
   <!-- Sister Projects -->

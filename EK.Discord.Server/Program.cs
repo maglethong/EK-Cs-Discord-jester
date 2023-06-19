@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
+using Discord;
 using Discord.WebSocket;
+using EK.Discord.Server.Discord.Base;
 
 namespace EK.Discord.Server; 
 
@@ -11,9 +13,13 @@ public class Program {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
         
         // Add services to the container.
-
-        builder.Services.AddControllersWithViews();
-        builder.Services.AddRazorPages();
+        builder.Services
+               .AddControllersWithViews()
+               .Services
+               .AddRazorPages()
+               .Services
+               // Configure Discord
+               .AddDiscord(builder.Configuration);
 
         // Build App
         WebApplication app = builder.Build();
@@ -47,19 +53,13 @@ public class Program {
                }
            );
 
-    #pragma warning disable CS4014
-        new Program().DiscordMain();
-    #pragma warning restore CS4014
+        // Start Discord Client
+        app.Services
+           .GetService<IDiscordClient>()?
+           .StartAsync();
         
         app.Run();
     }
 
-    private async Task DiscordMain() {
-        DiscordSocketClient client = new();
-        
-        // TODO do stuff with discord client
-        
-        await Task.Delay(-1);
-    }
 
 }
