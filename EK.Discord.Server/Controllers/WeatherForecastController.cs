@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EK.Discord.Server.Controllers
 {
     [ApiController]
-    [Route("WeatherForecast")]
+    [Route("api/WeatherForecast")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]

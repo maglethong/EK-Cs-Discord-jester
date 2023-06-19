@@ -11,6 +11,7 @@ namespace EK.Discord.Server
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
 
+            // Build App
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -25,17 +26,25 @@ namespace EK.Discord.Server
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
-
-            app.UseBlazorFrameworkFiles();
-            app.UseStaticFiles();
-
-            app.UseRouting();
-
-
-            app.MapRazorPages();
-            app.MapControllers();
-            app.MapFallbackToFile("index.html");
+            app.UseHttpsRedirection()
+                .UseBlazorFrameworkFiles()
+                .UseStaticFiles()
+                .UseRouting()
+                .UseCors("CorsPolicy")
+                .UseEndpoints(endpoints => {
+                        endpoints.MapRazorPages();
+                        endpoints.MapControllers();
+                        // Unknown API endpoints give status 404
+                        endpoints.Map("api/{**slug}",
+                            context => {
+                                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                                return Task.CompletedTask;
+                            }
+                        );
+                        // Unknown pages point to index
+                        endpoints.MapFallbackToFile("{**slug}", "index.html");
+                    }
+                );
 
             app.Run();
         }
