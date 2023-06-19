@@ -85,10 +85,11 @@ public static class DiscordDependencyInjectionExtension {
                     };
 
                     string token = sp.GetService<ISecretsManager>()!
-                                     .GetSecret("Discord__Token");
+                                     .GetSecret("Discord:Token");
 
                     if (string.IsNullOrEmpty(token)) {
-                        Console.WriteLine("Failed to log in to Discord. Missing Token.");
+                        sp.GetService<ILogger<IDiscordClient>>()!
+                          .LogError("Failed to log in to Discord due to Missing Token");
                     } else {
                         client.LoginAsync(TokenType.Bot, token)
                               .Wait();

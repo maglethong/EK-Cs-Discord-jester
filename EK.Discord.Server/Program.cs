@@ -2,6 +2,8 @@ using System.Diagnostics.CodeAnalysis;
 using Discord;
 using EK.Discord.Bot.Base.DependencyInjection;
 using EK.Discord.Server.Base.Configuration;
+using EK.Discord.Server.Base.Notion;
+using Notion.Client;
 
 namespace EK.Discord.Server;
 
@@ -19,6 +21,8 @@ public class Program {
                .Services
                // Configure Discord
                .AddDiscord(builder.Configuration)
+               // Configure Notion
+               .AddNotion()
                // Add Azure Clients
                .AddAzureKeyVaultSecretsManager(builder.Configuration);
 
@@ -53,7 +57,7 @@ public class Program {
                    endpoints.MapFallbackToFile("{**slug}", "index.html");
                }
            );
-
+        
         // Start Discord Client
         app.Services
            .GetService<IDiscordClient>()

@@ -25,6 +25,9 @@ A detailed description of required Secrets below:
 - `Discord__Token` 
   - A Bot token provided by the [Discord Application Portal](https://discord.com/developers/applications/). 
   - If not provided, the bot will not log in.
+- `Notion__Token`
+  - A Notion token provided by the [Notion Integrations Portal](https://www.notion.so/my-integrations).
+  - If not provided, the client will not log in.
 - `KeyVault__VaultUri` 
   - The URI to the Key vault to fetch Secrets from, should they not be available locally. 
   - Note that underscores '_' are translated to Minus '-' for finding a secret name.
