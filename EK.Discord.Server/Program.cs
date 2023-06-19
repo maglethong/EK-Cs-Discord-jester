@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Discord;
+using EK.Discord.Server.Base;
 using EK.Discord.Server.Discord.Base;
 
 namespace EK.Discord.Server;
@@ -17,7 +18,9 @@ public class Program {
                .AddRazorPages()
                .Services
                // Configure Discord
-               .AddDiscord(builder.Configuration);
+               .AddDiscord(builder.Configuration)
+               // Add Azure Clients
+               .AddAzureKeyVaultSecretsManager(builder.Configuration);
 
         // Build App
         WebApplication app = builder.Build();
@@ -54,8 +57,7 @@ public class Program {
         // Start Discord Client
         app.Services
            .GetService<IDiscordClient>()
-           ?
-           .StartAsync();
+           ?.StartAsync();
 
         app.Run();
     }
