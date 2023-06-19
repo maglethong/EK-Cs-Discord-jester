@@ -1,17 +1,15 @@
 using System.Diagnostics.CodeAnalysis;
 using Discord;
-using Discord.WebSocket;
 using EK.Discord.Server.Discord.Base;
 
-namespace EK.Discord.Server; 
+namespace EK.Discord.Server;
 
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global", Justification = "WebServer Startup Class")]
 public class Program {
 
     public static void Main(string[] args) {
-        
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-        
+
         // Add services to the container.
         builder.Services
                .AddControllersWithViews()
@@ -55,11 +53,11 @@ public class Program {
 
         // Start Discord Client
         app.Services
-           .GetService<IDiscordClient>()?
+           .GetService<IDiscordClient>()
+           ?
            .StartAsync();
-        
+
         app.Run();
     }
-
 
 }

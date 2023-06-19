@@ -1,6 +1,8 @@
-﻿using Discord;
+﻿using System.Reflection;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EK.Discord.Server.Discord.Base;
 
@@ -26,45 +28,47 @@ public static class DiscordDependencyInjectionExtension {
             return serviceCollection;
         }
 
-        DiscordSocketClient client = new();
+        serviceCollection.TryAddSingleton<IDiscordCommandHandler, DefaultDiscordCommandHandler>();
+        return serviceCollection
+               .AddDiscordClient(configuration["Discord:Token"]!)
+               .AddDiscordCommandService(options => {
+                       options.CaseSensitiveCommands = false;
+                       options.IgnoreExtraArgs = false;
+                       options.LogLevel = configuration.GetValue("Discord:LogLevel", LogSeverity.Info);
+                   }
+               );
+    }
 
-        client.LoginAsync(TokenType.Bot, configuration["Discord:Token"])
-              .Wait();
+    private static IServiceCollection AddDiscordCommandService(this IServiceCollection serviceCollection, Action<CommandServiceConfig>? configuration) {
+        return serviceCollection
+            .AddSingleton<CommandService>(sp => {
+                    CommandServiceConfig commandServiceConfiguration = new CommandServiceConfig();
+                    configuration?.Invoke(commandServiceConfiguration);
+                    CommandService commandService = new CommandService(commandServiceConfiguration);
 
-        serviceCollection.AddSingleton<IDiscordClient>(client);
+                    // Add all Classes of current assembly that inherit from ModuleBase<SocketCommandContext>
+                    commandService.AddModulesAsync(Assembly.GetEntryAssembly(), sp)
+                                  .Wait();
 
-//        client.MessageReceived += o => HandleCommandAsync(client, null, o);
-
-        return serviceCollection;
+                    return commandService;
+                }
+            );
     }
 
 
-    private static async Task HandleCommandAsync(DiscordSocketClient client,
-                                                 CommandService commandService,
-                                                 SocketMessage messageParam) {
-        // Don't process the command if it was a system message
-        SocketUserMessage? message = messageParam as SocketUserMessage;
-        if (message == null) {
-            return;
-        }
+    private static IServiceCollection AddDiscordClient(this IServiceCollection serviceCollection, string token) {
+        return serviceCollection
+            .AddSingleton<IDiscordClient>(sp => {
+                    DiscordSocketClient client = new();
 
-        // Create a number to track where the prefix ends and the command begins
-        int argPos = 0;
+                    client.LoginAsync(TokenType.Bot, token)
+                          .Wait();
 
-        // Determine if the message is a command based on the prefix and make sure no bots trigger commands
-        if (!(message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(client.CurrentUser, ref argPos)) || message.Author.IsBot) {
-            return;
-        }
-
-        // Create a WebSocket-based command context based on the message
-        SocketCommandContext context = new SocketCommandContext(client, message);
-
-        // Execute the command with the command context we just
-        // created, along with the service provider for precondition checks.
-        await commandService.ExecuteAsync(context: context,
-                                          argPos: argPos,
-                                          services: null
-        );
+                    IDiscordCommandHandler commandHandler = sp.GetService<IDiscordCommandHandler>()!;
+                    client.MessageReceived += message => commandHandler.HandleMessage(message);
+                    return client;
+                }
+            );
     }
 
 }
