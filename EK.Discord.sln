@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EK.Discord.Server", "Server\EK.Discord.Server.csproj", "{049A2BB8-CFC6-44AA-8427-E14218A9DE44}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EK.Discord.Server", "EK.Discord.Server\EK.Discord.Server.csproj", "{049A2BB8-CFC6-44AA-8427-E14218A9DE44}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EK.Discord.Client", "Client\EK.Discord.Client.csproj", "{600F65AC-52A5-48BD-B698-08A0C0069DD0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EK.Discord.Client", "EK.Discord.Client\EK.Discord.Client.csproj", "{600F65AC-52A5-48BD-B698-08A0C0069DD0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EK.Discord.Common", "Shared\EK.Discord.Common.csproj", "{17CFE0B6-FAEB-4AAF-AE13-F367A61DFF9C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EK.Discord.Common", "EK.Discord.Common\EK.Discord.Common.csproj", "{17CFE0B6-FAEB-4AAF-AE13-F367A61DFF9C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

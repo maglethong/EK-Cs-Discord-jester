@@ -1,4 +1,4 @@
-namespace EK.Discord.Shared
+namespace EK.Discord.Common
 {
     public class WeatherForecast
     {

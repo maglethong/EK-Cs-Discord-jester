@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.ResponseCompression;
-
-namespace EK.Discord
+namespace EK.Discord.Server
 {
     public class Program
     {

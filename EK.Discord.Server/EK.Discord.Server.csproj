@@ -6,13 +6,20 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <!-- Microsoft Internal -->
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="7.0.0" />
   </ItemGroup>
 
+  <!-- Other Dependencies -->
   <ItemGroup>
-    <ProjectReference Include="..\Client\EK.Discord.Client.csproj" />
-    <ProjectReference Include="..\Shared\EK.Discord.Common.csproj" />
+    <PackageReference Include="Discord.Net" Version="2.0.0" />
+  </ItemGroup>
+  
+  <!-- Sister Projects -->
+  <ItemGroup>
+    <ProjectReference Include="..\EK.Discord.Client\EK.Discord.Client.csproj" />
+    <ProjectReference Include="..\EK.Discord.Common\EK.Discord.Common.csproj" />
   </ItemGroup>
 
 
