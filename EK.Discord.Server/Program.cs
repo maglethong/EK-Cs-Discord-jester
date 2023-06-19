@@ -1,52 +1,51 @@
-namespace EK.Discord.Server
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+using System.Diagnostics.CodeAnalysis;
 
-            // Add services to the container.
+namespace EK.Discord.Server;
 
-            builder.Services.AddControllersWithViews();
-            builder.Services.AddRazorPages();
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global", Justification = "WebServer Startup Class")]
+public class Program {
 
-            // Build App
-            var app = builder.Build();
+    public static void Main(string[] args) {
+        WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseWebAssemblyDebugging();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
+        // Add services to the container.
 
-            app.UseHttpsRedirection()
-                .UseBlazorFrameworkFiles()
-                .UseStaticFiles()
-                .UseRouting()
-                .UseCors("CorsPolicy")
-                .UseEndpoints(endpoints => {
-                        endpoints.MapRazorPages();
-                        endpoints.MapControllers();
-                        // Unknown API endpoints give status 404
-                        endpoints.Map("api/{**slug}",
-                            context => {
-                                context.Response.StatusCode = StatusCodes.Status404NotFound;
-                                return Task.CompletedTask;
-                            }
-                        );
-                        // Unknown pages point to index
-                        endpoints.MapFallbackToFile("{**slug}", "index.html");
-                    }
-                );
+        builder.Services.AddControllersWithViews();
+        builder.Services.AddRazorPages();
 
-            app.Run();
+        // Build App
+        WebApplication app = builder.Build();
+
+        // Configure the HTTP request pipeline.
+        if (app.Environment.IsDevelopment()) {
+            app.UseWebAssemblyDebugging();
+        } else {
+            app.UseExceptionHandler("/Error");
+            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+            app.UseHsts();
         }
+
+        app.UseHttpsRedirection()
+           .UseBlazorFrameworkFiles()
+           .UseStaticFiles()
+           .UseRouting()
+           .UseCors("CorsPolicy")
+           .UseEndpoints(endpoints => {
+                   endpoints.MapRazorPages();
+                   endpoints.MapControllers();
+                   // Unknown API endpoints give status 404
+                   endpoints.Map("api/{**slug}",
+                                 context => {
+                                     context.Response.StatusCode = StatusCodes.Status404NotFound;
+                                     return Task.CompletedTask;
+                                 }
+                   );
+                   // Unknown pages point to index
+                   endpoints.MapFallbackToFile("{**slug}", "index.html");
+               }
+           );
+
+        app.Run();
     }
+
 }
