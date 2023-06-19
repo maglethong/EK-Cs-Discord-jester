@@ -1,3 +1,6 @@
+[![CI](https://github.com/maglethong/EK-Cs-Discord-jester/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/maglethong/EK-Cs-Discord-jester/actions/workflows/ci.yml)
+[![CD](https://github.com/maglethong/EK-Cs-Discord-jester/actions/workflows/cd.yml/badge.svg?branch=master)](https://github.com/maglethong/EK-Cs-Discord-jester/actions/workflows/cd.yml)
+
 # EK-Cs-Discord-jester
 
 Documentation for Discord Client: https://discordnet.dev/guides/getting_started/first-bot.html
