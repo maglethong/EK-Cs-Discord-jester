@@ -1,7 +1,7 @@
 ﻿using Discord.Commands;
 using Discord.WebSocket;
 
-namespace EK.Discord.Server.Discord.CommandModules;
+namespace EK.Discord.Bot.Template;
 
 /// <summary>
 ///     Template Command Module from https://discordnet.dev/guides/text_commands/intro.html

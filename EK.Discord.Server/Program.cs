@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Discord;
-using EK.Discord.Server.Base;
-using EK.Discord.Server.Discord.Base;
+using EK.Discord.Bot.Base.DependencyInjection;
+using EK.Discord.Server.Base.Configuration;
 
 namespace EK.Discord.Server;
 

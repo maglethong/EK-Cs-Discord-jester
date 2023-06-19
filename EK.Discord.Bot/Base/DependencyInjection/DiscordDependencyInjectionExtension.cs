@@ -2,10 +2,13 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using EK.Discord.Server.Base;
+using EK.Discord.Common.Base.Configuration;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 
-namespace EK.Discord.Server.Discord.Base;
+namespace EK.Discord.Bot.Base.DependencyInjection;
 
 /// <summary>
 ///     Extension class for <see cref="IServiceCollection"/> for configuring <see cref="IDiscordClient"/>
@@ -27,6 +30,7 @@ public static class DiscordDependencyInjectionExtension {
         serviceCollection.TryAddSingleton<IDiscordCommandHandler, DefaultDiscordCommandHandler>();
         return serviceCollection
                .AddDiscordClient(options => {
+                   // TODO -> Fix, unable to read commands not mentioning bot
 //                                     options.GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent;
                                      options.LogLevel = configuration.GetValue("Discord:LogLevel", LogSeverity.Debug);
                                  })
@@ -45,6 +49,7 @@ public static class DiscordDependencyInjectionExtension {
                     configuration?.Invoke(commandServiceConfiguration);
                     CommandService commandService = new CommandService(commandServiceConfiguration);
 
+                    // TODO -> Fix, entry assembly is probably the wrong one, since all commands are in Bot project
                     // Add all Classes of current assembly that inherit from ModuleBase<SocketCommandContext>
                     commandService.AddModulesAsync(Assembly.GetEntryAssembly(), sp)
                                   .Wait();

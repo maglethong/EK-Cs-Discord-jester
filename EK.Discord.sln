@@ -20,6 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionResources", "Soluti
 		NuGet.config = NuGet.config
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EK.Discord.Bot", "EK.Discord.Bot\EK.Discord.Bot.csproj", "{EB5F24B7-0250-40B9-AFA4-AE0DADB6484E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +40,10 @@ Global
 		{17CFE0B6-FAEB-4AAF-AE13-F367A61DFF9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17CFE0B6-FAEB-4AAF-AE13-F367A61DFF9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17CFE0B6-FAEB-4AAF-AE13-F367A61DFF9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB5F24B7-0250-40B9-AFA4-AE0DADB6484E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB5F24B7-0250-40B9-AFA4-AE0DADB6484E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB5F24B7-0250-40B9-AFA4-AE0DADB6484E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB5F24B7-0250-40B9-AFA4-AE0DADB6484E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

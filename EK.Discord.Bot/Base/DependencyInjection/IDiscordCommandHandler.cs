@@ -1,6 +1,6 @@
 ﻿using Discord.WebSocket;
 
-namespace EK.Discord.Server.Discord.Base;
+namespace EK.Discord.Bot.Base.DependencyInjection;
 
 /// <summary>
 ///     Interface defining a Command Handler for <see cref="Discord"/>
