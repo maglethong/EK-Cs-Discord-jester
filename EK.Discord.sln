@@ -9,6 +9,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EK.Discord.Client", "EK.Dis
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EK.Discord.Common", "EK.Discord.Common\EK.Discord.Common.csproj", "{17CFE0B6-FAEB-4AAF-AE13-F367A61DFF9C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionResources", "SolutionResources", "{5F26410B-6D8B-4697-B455-F6F3C60767EF}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+		.editorconfig = .editorconfig
+		NuGet.config = NuGet.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

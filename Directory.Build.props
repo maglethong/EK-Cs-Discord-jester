@@ -1,0 +1,30 @@
+<!-- Centralized Build configuration for all projects of this solution -->
+<Project>
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<LangVersion>preview</LangVersion>
+		<Nullable>enable</Nullable>
+		<WarningsAsErrors>nullable</WarningsAsErrors>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<!-- Code Style Analysis -->
+	<ItemGroup>
+		<None Include="..\.editorconfig" />
+	</ItemGroup>
+	<PropertyGroup>
+		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<WarningsAsErrors>nullable</WarningsAsErrors>
+		<Nullable>enable</Nullable>
+		<AnalysisLevel>latest</AnalysisLevel>
+		<WarningsNotAsErrors>612,618</WarningsNotAsErrors>
+		<!-- <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild> -->
+		<!-- <EnableNETAnalyzers>true</EnableNETAnalyzers> -->
+		<!-- <AnalysisMode>AllEnabledByDefault</AnalysisMode> -->
+		<!-- <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis> -->
+		<!-- <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors> -->
+		<!-- <TreatWarningsAsErrors>false</TreatWarningsAsErrors> -->
+		<!--  <GenerateDocumentationFile>true</GenerateDocumentationFile> -->
+	</PropertyGroup>
+</Project>
