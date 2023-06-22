@@ -36,7 +36,7 @@ variable "key_permissions" {
 variable "secret_permissions" {
   type        = list(string)
   description = "List of secret permissions."
-  default     = ["List", "Set", "Delete", "Get"]
+  default     = ["List", "Set", "Delete", "Get", "Purge", "Recover"]
 }
 
 variable "msi_id" {

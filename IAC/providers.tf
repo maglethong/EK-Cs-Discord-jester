@@ -15,6 +15,14 @@ terraform {
       version = "~>4.0"
     }
   }
+  # Comment out on first run so the storage account gets created
+  # Also make sure resource_group_name and storage_account_name match the created values. (Variables are not allowed here)
+  backend "azurerm" {
+    resource_group_name  = "rg-ek"
+    storage_account_name = "dtekdiscterraformsa"
+    container_name       = "terraformstate"
+    key                  = "terraform.tfstate"
+  }
 }
 
 provider "azurerm" {
