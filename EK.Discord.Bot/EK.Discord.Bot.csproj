@@ -1,4 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <RuntimeIdentifiers>win10-x64;linux-x64</RuntimeIdentifiers>
+    </PropertyGroup>
 
     <!-- Microsoft Internal -->
     <ItemGroup>
