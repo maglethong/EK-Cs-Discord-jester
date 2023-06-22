@@ -40,7 +40,7 @@ jobs:
     
     # Build the application
     - name: Build for linux
-      run: |
+      run: >
         dotnet publish ./EK.Discord.Server/EK.Discord.Server.csproj 
         --configuration Release 
         --output ./Build/Linux/ 
