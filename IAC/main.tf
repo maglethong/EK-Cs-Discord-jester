@@ -4,6 +4,8 @@ resource "azurerm_resource_group" "rg" {
   location = var.resource_group_location
 }
 
+data "azurerm_subscription" "primary" {}
+
 # Identify current user
 data "azurerm_client_config" "current" {}
 
@@ -52,20 +54,6 @@ resource "azurerm_key_vault" "vault" {
     secret_permissions = var.secret_permissions
   }
 }
-
-#resource "azurerm_key_vault_secret" "kv-ek-dicord-token" {
-#  key_vault_id = azurerm_key_vault.vault.id
-#  name = "Discord--Token"
-#  # Never set you token here, since this will be pushed to REPO. Change it manually on azure or through AZ CLI
-#  value = "NOT SET"
-#}
-#
-#resource "azurerm_key_vault_secret" "kv-ek-notion-token" {
-#  key_vault_id = azurerm_key_vault.vault.id
-#  name = "Notion--Token"
-#  # Never set you token here, since this will be pushed to REPO. Change it manually on azure or through AZ CLI
-#  value = "NOT SET"
-#}
 
 #####################################
 # Create VM to Host our Application #
@@ -196,25 +184,57 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
 resource "azurerm_key_vault_secret" "kv-ek-myvm-ssh-pub" {
   key_vault_id = azurerm_key_vault.vault.id
   name = "kv-ek-my-vm-ssh-pub"
+  content_type = "SSH Public Key"
   value = tls_private_key.example_ssh.public_key_openssh
 }
 
 resource "azurerm_key_vault_secret" "kv-ek-myvm-ssh-priv" {
   key_vault_id = azurerm_key_vault.vault.id
   name = "kv-ek-my-vm-ssh-priv"
+  content_type = "SSH Private Key"
   value = tls_private_key.example_ssh.private_key_openssh
 }
 
 resource "azurerm_key_vault_secret" "kv-ek-myvm-ssh-pem" {
   key_vault_id = azurerm_key_vault.vault.id
   name = "kv-ek-my-vm-ssh-pem"
+  content_type = "SSH .PEM"
   value = tls_private_key.example_ssh.private_key_pem
 }
 
 resource "azurerm_key_vault_secret" "kv-ek-myvm-ip" {
   key_vault_id = azurerm_key_vault.vault.id
   name = "kv-ek-my-vm-ip"
+  content_type = "IP"
   value = azurerm_public_ip.my_terraform_public_ip.ip_address
+}
+
+# Create service Principal
+resource "azuread_application" "Application" {
+  display_name = "EK-Discord-Jester"
+}
+
+resource "azuread_service_principal" "Application_Pipeline" {
+  application_id               = azuread_application.Application.application_id
+}
+
+resource "azuread_service_principal_password" "Application_Pipeline" {
+  service_principal_id = "${azuread_service_principal.Application_Pipeline.id}"
+  end_date_relative    = "240h"
+}
+
+// TODO create custom role with only necessary permissions for pipeline
+resource "azurerm_role_assignment" "Application_Pipeline" {
+  scope                = "${data.azurerm_subscription.primary.id}"
+  role_definition_name = "Contributor"
+  principal_id         = "${azuread_service_principal.Application_Pipeline.id}"
+}
+
+resource "azurerm_key_vault_secret" "Application_Pipeline" {
+  key_vault_id = azurerm_key_vault.vault.id
+  content_type = "JSON"
+  name = "EK-Discord-Jester--ServicePrincipal--credentials"
+  value = "{\"clientId\":\"${azuread_service_principal.Application_Pipeline.application_id}\",\"clientSecret\":\"${azuread_service_principal_password.Application_Pipeline.value}\",\"subscriptionId\":\"${data.azurerm_subscription.primary.id}\",\"tenantId\":\"${data.azurerm_subscription.primary.tenant_id}\"}"
 }
 
 # Total estimated price:
