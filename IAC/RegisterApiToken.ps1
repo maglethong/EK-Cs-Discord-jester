@@ -16,7 +16,10 @@ function ListSecrets {
 }
 
 function SaveApiToken ([string] $name, [string] $secret) {
-    # Set Discord Api Token
+    az keyvault secret set `
+        --name $name `
+        --vault-name "dev-$key_vault_name" `
+        --value $secret
     az keyvault secret set `
         --name $name `
         --vault-name $key_vault_name `
@@ -28,6 +31,3 @@ SaveApiToken "Discord--Token"  "Your_discord_token"
 
 # Main token for notion authentication
 SaveApiToken "Notion--Token"  "Your_notion_token" 
-    
-# Development Bot api token
-SaveApiToken "DevDiscord--Token"  "Your_discord_token"

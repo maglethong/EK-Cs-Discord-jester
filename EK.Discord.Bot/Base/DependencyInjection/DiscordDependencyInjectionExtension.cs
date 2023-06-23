@@ -24,29 +24,30 @@ public static class DiscordDependencyInjectionExtension {
     ///     This log in the bot and keeps him logged in until the application closes
     /// </remarks>
     /// <param name="serviceCollection"> Class being extended </param>
-    /// <param name="configuration"> A Configuration provider for reading <code> Discord:Token </code> </param>
     /// <returns> Class being extended </returns>
-    public static IServiceCollection AddDiscord(this IServiceCollection serviceCollection, IConfiguration configuration) {
+    public static IServiceCollection AddDiscord(this IServiceCollection serviceCollection) {
         serviceCollection.TryAddSingleton<IDiscordCommandHandler, DefaultDiscordCommandHandler>();
         return serviceCollection
-               .AddDiscordClient(options => {
+               .AddDiscordClient((sp, options) => {
                    // TODO -> Fix, unable to read commands not mentioning bot
 //                                     options.GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent;
-                                     options.LogLevel = configuration.GetValue("Discord:LogLevel", LogSeverity.Debug);
+                                     options.LogLevel = sp.GetService<IConfiguration>()!
+                                                          .GetValue("Discord:LogLevel", LogSeverity.Debug);
                                  })
-               .AddDiscordCommandService(options => {
+               .AddDiscordCommandService((sp, options) => {
                        options.CaseSensitiveCommands = false;
                        options.IgnoreExtraArgs = false;
-                       options.LogLevel = configuration.GetValue("Discord:LogLevel", LogSeverity.Debug);
+                       options.LogLevel = sp.GetService<IConfiguration>()!
+                                            .GetValue("Discord:LogLevel", LogSeverity.Debug);
                    }
                );
     }
 
-    private static IServiceCollection AddDiscordCommandService(this IServiceCollection serviceCollection, Action<CommandServiceConfig>? configuration = null) {
+    private static IServiceCollection AddDiscordCommandService(this IServiceCollection serviceCollection, Action<IServiceProvider, CommandServiceConfig>? configuration = null) {
         return serviceCollection
             .AddSingleton<CommandService>(sp => {
                     CommandServiceConfig commandServiceConfiguration = new CommandServiceConfig();
-                    configuration?.Invoke(commandServiceConfiguration);
+                    configuration?.Invoke(sp, commandServiceConfiguration);
                     CommandService commandService = new CommandService(commandServiceConfiguration);
 
                     // Add all Classes of current assembly that inherit from ModuleBase<SocketCommandContext>
@@ -64,11 +65,11 @@ public static class DiscordDependencyInjectionExtension {
 
 
     private static IServiceCollection AddDiscordClient(this IServiceCollection serviceCollection, 
-                                                       Action<DiscordSocketConfig>? configuration = null) {
+                                                       Action<IServiceProvider, DiscordSocketConfig>? configuration = null) {
         return serviceCollection
             .AddSingleton<IDiscordClient>(sp => {
                     DiscordSocketConfig config = new DiscordSocketConfig();
-                    configuration?.Invoke(config);
+                    configuration?.Invoke(sp, config);
                     DiscordSocketClient client = new DiscordSocketClient(config);
 
                     IDiscordCommandHandler commandHandler = sp.GetService<IDiscordCommandHandler>()!;
