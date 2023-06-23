@@ -102,7 +102,7 @@ resource "azurerm_network_security_group" "my_terraform_nsg" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
-  # TODO: allowing SSH is dangerous. We should block this in the future
+  # Only temporarily enable when in use
 #  security_rule {
 #    name                       = "SSH"
 #    priority                   = 1001
@@ -181,7 +181,6 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
 
   computer_name                   = "myvm"
   admin_username                  = "azureuser"
-#  admin_password                  = "Admin123password"
   disable_password_authentication = true
 
   admin_ssh_key {
@@ -197,15 +196,25 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
 resource "azurerm_key_vault_secret" "kv-ek-myvm-ssh-pub" {
   key_vault_id = azurerm_key_vault.vault.id
   name = "kv-ek-my-vm-ssh-pub"
-  # Never set you token here, since this will be pushed to REPO. Change it manually on azure or through AZ CLI
   value = tls_private_key.example_ssh.public_key_openssh
 }
 
 resource "azurerm_key_vault_secret" "kv-ek-myvm-ssh-priv" {
   key_vault_id = azurerm_key_vault.vault.id
   name = "kv-ek-my-vm-ssh-priv"
-  # Never set you token here, since this will be pushed to REPO. Change it manually on azure or through AZ CLI
   value = tls_private_key.example_ssh.private_key_openssh
+}
+
+resource "azurerm_key_vault_secret" "kv-ek-myvm-ssh-pem" {
+  key_vault_id = azurerm_key_vault.vault.id
+  name = "kv-ek-my-vm-ssh-pem"
+  value = tls_private_key.example_ssh.private_key_pem
+}
+
+resource "azurerm_key_vault_secret" "kv-ek-myvm-ip" {
+  key_vault_id = azurerm_key_vault.vault.id
+  name = "kv-ek-my-vm-ip"
+  value = azurerm_public_ip.my_terraform_public_ip.ip_address
 }
 
 # Total estimated price:
