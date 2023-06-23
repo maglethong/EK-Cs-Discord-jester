@@ -46,6 +46,12 @@ jobs:
         --output ./Build/Linux/ 
         --self-contained 
         --runtime linux-x64
+        
+    # Login To Azure
+    - name: AZURE LOGIN
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS}}
       
     # Deploy To Azure
     - name: Deploy

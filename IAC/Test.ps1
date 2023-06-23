@@ -3,6 +3,8 @@
 # az account set --subscription "<subscription_Id>"
 
 $resource_group_name = "rg-ek"
+$subscription = ((az account list | ConvertFrom-Json) | WHERE isDefault -eq $true).id
+$tenant = ((az account list | ConvertFrom-Json) | WHERE isDefault -eq $true).tenantId
 $key_vault_name = "kv-ek-discord"
 $vm_name = "mv-myvm"
 $vm_admin_user = "azureuser"
@@ -25,3 +27,4 @@ az vm run-command invoke `
     --command-id "RunShellScript" `
     --scripts "echo $1 $2" `
     --parameters "hello" "world"
+
