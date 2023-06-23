@@ -14,6 +14,10 @@ terraform {
       source = "hashicorp/tls"
       version = "~>4.0"
     }
+    local = {
+      source = "hashicorp/local"
+      version = "~>1.0"
+    }
   }
   # Comment out on first run so the storage account gets created
   # Also make sure resource_group_name and storage_account_name match the created values. (Variables are not allowed here)
