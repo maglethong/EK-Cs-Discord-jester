@@ -16,7 +16,7 @@ public class WeatherForecastController : AbstractControllerBase {
 
     [HttpGet]
     public IEnumerable<WeatherForecast> Get() {
-        Logger?.LogTrace("Starting call {}#{}", nameof(WeatherForecastController), nameof(Get));
+        Logger?.LogInformation("Starting call {}#{}", nameof(WeatherForecastController), nameof(Get));
         
         return Service.GetAllForecasts();
     }

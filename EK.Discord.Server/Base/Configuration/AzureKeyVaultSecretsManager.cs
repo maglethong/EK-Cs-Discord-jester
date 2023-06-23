@@ -12,7 +12,9 @@ public class AzureKeyVaultSecretsManager : ISecretsManager {
     /// <summary>
     ///  Constructor
     /// </summary>
-    public AzureKeyVaultSecretsManager(SecretClient secretClient, FallbackSecretsManager fallbackSecretsManager, ILogger<AzureKeyVaultSecretsManager> logger) {
+    public AzureKeyVaultSecretsManager(SecretClient secretClient, 
+                                       FallbackSecretsManager fallbackSecretsManager, 
+                                       ILogger<AzureKeyVaultSecretsManager> logger) {
         SecretClient = secretClient;
         FallbackSecretsManager = fallbackSecretsManager;
         Logger = logger;
@@ -29,7 +31,7 @@ public class AzureKeyVaultSecretsManager : ISecretsManager {
 
         if (string.IsNullOrWhiteSpace(ret)) {
             try {
-                ret = SecretClient.GetSecret(secretName.Replace("_", "-")).Value.Value;
+                ret = SecretClient.GetSecret(secretName.Replace(":", "--")).Value.Value;
             } catch (RequestFailedException e) {
                 Logger.LogError("Could connect to Azure Key Vault");
                 Logger.LogTrace(e, "Could connect to Azure Key Vault");

@@ -30,16 +30,25 @@ resource "azurerm_storage_container" "terraform_storage_container" {
 
 # Generate Key vault
 # ~0.1$ / Month on June 2023
-resource "random_string" "azurerm_key_vault_name" {
-  length  = 13
-  lower   = true
-  numeric = false
-  special = false
-  upper   = false
-}
-
 resource "azurerm_key_vault" "vault" {
   name                       = var.vault_name
+  location                   = azurerm_resource_group.rg.location
+  resource_group_name        = azurerm_resource_group.rg.name
+  tenant_id                  = data.azurerm_client_config.current.tenant_id
+  sku_name                   = var.sku_name
+  soft_delete_retention_days = 7
+
+  access_policy {
+    tenant_id = data.azurerm_client_config.current.tenant_id
+    object_id = local.current_user_id
+
+    key_permissions    = var.key_permissions
+    secret_permissions = var.secret_permissions
+  }
+}
+
+resource "azurerm_key_vault" "dev_vault" {
+  name                       = "dev-${var.vault_name}"
   location                   = azurerm_resource_group.rg.location
   resource_group_name        = azurerm_resource_group.rg.name
   tenant_id                  = data.azurerm_client_config.current.tenant_id
@@ -142,44 +151,44 @@ resource "tls_private_key" "example_ssh" {
 }
 
 # Create virtual machine
-resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
-  name                  = "mv-myvm"
-  location              = azurerm_resource_group.rg.location
-  resource_group_name   = azurerm_resource_group.rg.name
-  network_interface_ids = [azurerm_network_interface.my_terraform_nic.id]
-  # ~3.8$ / Month on June 2023
-  size                  = "Standard_B1ls"
-  # ~7.6$ / Month on June 2023
-#  size                  = "Standard_B1s"
-
-  # ~2.4$ / Month on June 2023
-  os_disk {
-    name                 = "md-myosdisk"
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-    disk_size_gb         = "30"
-  }
-
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts-gen2"
-    version   = "latest"
-  }
-
-  computer_name                   = "myvm"
-  admin_username                  = "azureuser"
-  disable_password_authentication = true
-
-  admin_ssh_key {
-    username   = "azureuser"
-    public_key = tls_private_key.example_ssh.public_key_openssh
-  }
-
-  boot_diagnostics {
-    storage_account_uri = azurerm_storage_account.my_storage_account.primary_blob_endpoint
-  }
-}
+#resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
+#  name                  = "mv-myvm"
+#  location              = azurerm_resource_group.rg.location
+#  resource_group_name   = azurerm_resource_group.rg.name
+#  network_interface_ids = [azurerm_network_interface.my_terraform_nic.id]
+#  # ~3.8$ / Month on June 2023
+#  size                  = "Standard_B1ls"
+#  # ~7.6$ / Month on June 2023
+##  size                  = "Standard_B1s"
+#
+#  # ~2.4$ / Month on June 2023
+#  os_disk {
+#    name                 = "md-myosdisk"
+#    caching              = "ReadWrite"
+#    storage_account_type = "Standard_LRS"
+#    disk_size_gb         = "30"
+#  }
+#
+#  source_image_reference {
+#    publisher = "Canonical"
+#    offer     = "0001-com-ubuntu-server-jammy"
+#    sku       = "22_04-lts-gen2"
+#    version   = "latest"
+#  }
+#
+#  computer_name                   = "myvm"
+#  admin_username                  = "azureuser"
+#  disable_password_authentication = true
+#
+#  admin_ssh_key {
+#    username   = "azureuser"
+#    public_key = tls_private_key.example_ssh.public_key_openssh
+#  }
+#
+#  boot_diagnostics {
+#    storage_account_uri = azurerm_storage_account.my_storage_account.primary_blob_endpoint
+#  }
+#}
 
 resource "azurerm_key_vault_secret" "kv-ek-myvm-ssh-pub" {
   key_vault_id = azurerm_key_vault.vault.id

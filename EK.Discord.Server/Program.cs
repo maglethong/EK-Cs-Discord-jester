@@ -20,9 +20,9 @@ public class Program {
                .AddRazorPages()
                .Services
                // Configure Discord
-               .AddDiscord(builder.Configuration)
+               .AddDiscord()
                // Configure Notion
-               .AddNotion()
+               .AddNotion() // TODO -> Alternative for loading multiple Tokens
                // Add Azure Clients
                .AddAzureKeyVaultSecretsManager(builder.Configuration);
 
