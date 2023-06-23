@@ -18,6 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionResources", "Soluti
 		Directory.Packages.props = Directory.Packages.props
 		.editorconfig = .editorconfig
 		NuGet.config = NuGet.config
+		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EK.Discord.Bot", "EK.Discord.Bot\EK.Discord.Bot.csproj", "{EB5F24B7-0250-40B9-AFA4-AE0DADB6484E}"
