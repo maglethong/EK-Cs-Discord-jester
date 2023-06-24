@@ -3,20 +3,42 @@
 variable "host_vm" {
   type = object({
     create     = bool
-    name       = string
     enable_ssh = bool
     size       = string
   })
   description  = "Configuration variables for the vm hosting the application"
   default      = ({
-    create     = false
-    name       = "mv-myvm"
+    create     = true
     enable_ssh = false
     # ~3.8$ / Month on June 2023
     size       = "Standard_B1ls"
     # ~7.6$ / Month on June 2023
-    #size    = "Standard_B1s"
+    #size       = "Standard_B1s"
   })
+}
+
+variable "ssh_private_key_secret_name" {
+  type        = string
+  description = "Name of the secret storing the host Vm's private key for ssh access"
+  default     = "kv-ek-my-vm-ssh-priv"
+}
+
+variable "vm_ip_secret_name" {
+  type        = string
+  description = "Name of the secret storing the host Vm's IP address"
+  default     = "kv-ek-my-vm-ip"
+}
+
+variable "host_vm_admin_user" {
+  type        = string
+  description = "Name of the vm admin username"
+  default     = "azureuser"
+}
+        
+variable "host_vm_name" {
+  type        = string
+  description = "Name of the vm hosting the application"
+  default     = "mv-myvm"
 }
 
 variable "resource_group_location" {
@@ -35,28 +57,6 @@ variable "vault_name" {
   type        = string
   description = "The name of the key vault to be created."
   default     = "kv-ek-discord"
-}
-
-variable "sku_name" {
-  type        = string
-  description = "The SKU of the vault to be created."
-  default     = "standard"
-  validation {
-    condition     = contains(["standard", "premium"], var.sku_name)
-    error_message = "The sku_name must be one of the following: standard, premium."
-  }
-}
-
-variable "key_permissions" {
-  type        = list(string)
-  description = "List of key permissions."
-  default     = ["List", "Create", "Delete", "Get", "Purge", "Recover", "Update", "GetRotationPolicy", "SetRotationPolicy"]
-}
-
-variable "secret_permissions" {
-  type        = list(string)
-  description = "List of secret permissions."
-  default     = ["List", "Set", "Delete", "Get", "Purge", "Recover"]
 }
 
 variable "msi_id" {

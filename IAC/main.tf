@@ -37,15 +37,15 @@ resource "azurerm_key_vault" "vault" {
   location                   = azurerm_resource_group.rg.location
   resource_group_name        = azurerm_resource_group.rg.name
   tenant_id                  = data.azurerm_client_config.current.tenant_id
-  sku_name                   = var.sku_name
+  sku_name                   = "standard"
   soft_delete_retention_days = 7
 
   access_policy {
     tenant_id = data.azurerm_client_config.current.tenant_id
     object_id = local.current_user_id
 
-    key_permissions    = var.key_permissions
-    secret_permissions = var.secret_permissions
+    key_permissions    = ["List", "Create", "Delete", "Get", "Purge", "Recover", "Update", "GetRotationPolicy", "SetRotationPolicy"]
+    secret_permissions = ["List", "Set", "Delete", "Get", "Purge", "Recover"]
   }
 }
 
@@ -54,15 +54,15 @@ resource "azurerm_key_vault" "dev_vault" {
   location                   = azurerm_resource_group.rg.location
   resource_group_name        = azurerm_resource_group.rg.name
   tenant_id                  = data.azurerm_client_config.current.tenant_id
-  sku_name                   = var.sku_name
+  sku_name                   = "standard"
   soft_delete_retention_days = 7
 
   access_policy {
     tenant_id = data.azurerm_client_config.current.tenant_id
     object_id = local.current_user_id
 
-    key_permissions    = var.key_permissions
-    secret_permissions = var.secret_permissions
+    key_permissions    = ["List", "Create", "Delete", "Get", "Purge", "Recover", "Update", "GetRotationPolicy", "SetRotationPolicy"]
+    secret_permissions = ["List", "Set", "Delete", "Get", "Purge", "Recover"]
   }
 }
 
@@ -157,7 +157,7 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
   
   count = var.host_vm.create == true ? 1 : 0
 
-  name                  = var.host_vm.name
+  name                  = var.host_vm_name
   location              = azurerm_resource_group.rg.location
   resource_group_name   = azurerm_resource_group.rg.name
   network_interface_ids = [azurerm_network_interface.my_terraform_nic.id]
@@ -180,11 +180,11 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
   }
 
   computer_name                   = "myvm"
-  admin_username                  = "azureuser"
+  admin_username                  = var.host_vm_admin_user
   disable_password_authentication = true
 
   admin_ssh_key {
-    username   = "azureuser"
+    username   = var.host_vm_admin_user
     public_key = tls_private_key.example_ssh.public_key_openssh
   }
 
@@ -202,7 +202,7 @@ resource "azurerm_key_vault_secret" "kv-ek-myvm-ssh-pub" {
 
 resource "azurerm_key_vault_secret" "kv-ek-myvm-ssh-priv" {
   key_vault_id = azurerm_key_vault.vault.id
-  name = "kv-ek-my-vm-ssh-priv"
+  name = var.ssh_private_key_secret_name
   content_type = "SSH Private Key"
   value = tls_private_key.example_ssh.private_key_openssh
 }
@@ -216,7 +216,7 @@ resource "azurerm_key_vault_secret" "kv-ek-myvm-ssh-pem" {
 
 resource "azurerm_key_vault_secret" "kv-ek-myvm-ip" {
   key_vault_id = azurerm_key_vault.vault.id
-  name = "kv-ek-my-vm-ip"
+  name = var.vm_ip_secret_name
   content_type = "IP"
   value = azurerm_public_ip.my_terraform_public_ip.ip_address
 }
@@ -266,7 +266,6 @@ resource "azurerm_role_assignment" "Application_Pipeline_releases_Blobs" {
   principal_id         = azuread_service_principal.Application_Pipeline.id
 }
 
-// TODO create custom role with only necessary permissions for pipeline
 resource "azurerm_role_assignment" "Application_Pipeline" {
   scope                = azurerm_key_vault.vault.id
   role_definition_name = "Reader"
@@ -279,6 +278,3 @@ resource "azurerm_key_vault_secret" "Application_Pipeline" {
   name = "EK-Discord-Jester--ServicePrincipal--credentials"
   value = "{\"clientId\":\"${azuread_service_principal.Application_Pipeline.application_id}\",\"clientSecret\":\"${azuread_service_principal_password.Application_Pipeline.value}\",\"subscriptionId\":\"${data.azurerm_subscription.primary.id}\",\"tenantId\":\"${data.azurerm_subscription.primary.tenant_id}\"}"
 }
-
-# Total estimated price:
-# ~6.6$ / Month Total
