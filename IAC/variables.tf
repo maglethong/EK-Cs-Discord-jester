@@ -1,4 +1,24 @@
 # For full list see https://github.com/claranet/terraform-azurerm-regions/blob/master/REGIONS.md
+
+variable "host_vm" {
+  type = object({
+    create     = bool
+    name       = string
+    enable_ssh = bool
+    size       = string
+  })
+  description  = "Configuration variables for the vm hosting the application"
+  default      = ({
+    create     = false
+    name       = "mv-myvm"
+    enable_ssh = false
+    # ~3.8$ / Month on June 2023
+    size       = "Standard_B1ls"
+    # ~7.6$ / Month on June 2023
+    #size    = "Standard_B1s"
+  })
+}
+
 variable "resource_group_location" {
   type        = string
   description = "Location for all resources."
