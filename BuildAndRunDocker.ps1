@@ -4,17 +4,13 @@ az login
 
 $key_vault_name = "dev-kv-ek-discord"
 
-$response = az keyvault secret show `
+$Discord__Token = (az keyvault secret show `
     --name "Discord--Token" `
-    --vault-name $key_vault_name
+    --vault-name $key_vault_name | ConvertFrom-Json).Value
 
-$Discord__Token =  ($response | ConvertFrom-Json).Value
-
-$response = az keyvault secret show `
+$Notion__Token = (az keyvault secret show `
     --name "Notion--Token" `
-    --vault-name $key_vault_name
-
-$Notion__Token =  ($response | ConvertFrom-Json).Value
+    --vault-name $key_vault_name | ConvertFrom-Json).Value
 
 docker run `
     --rm `

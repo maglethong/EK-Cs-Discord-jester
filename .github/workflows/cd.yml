@@ -59,18 +59,34 @@ jobs:
           Write-Host Deleting old release file: $fileToDelete.Name
           az storage blob delete --name $fileToDelete.Name --account-name $storageAccountName --container-name $storageContainerName --auth-mode login --timeout 300
         }
-    
+    - name: Connect to Azure Key Vault
+      uses: Azure/get-keyvault-secrets@v1
+      with:
+        keyvault: "dev-kv-ek-discord"
+        secrets: 'Discord__Token, Notion__Token'
+      id: myGetSecretAction
+
     - name: WIP Deploy
       shell: pwsh
       run: |
-        $targetFileName = "./DockerImage-${{ github.sha }}.tar"
         $storageAccountName = "dtekdiscterraformsa"
         $storageContainerName = "publicreleases"
         $resource_group_name = "rg-ek"
         $vm_name = "mv-myvm"
+        $key_vault_name = "dev-kv-ek-discord"
         $subscription = ((az account list | ConvertFrom-Json) | WHERE isDefault -eq $true).id
         $tenant = ((az account list | ConvertFrom-Json) | WHERE isDefault -eq $true).tenantId
-        az vm run-command invoke --resource-group $resource_group_name --name $vm_name --command-id "RunShellScript" --scripts "echo $1 $2 > test" --parameters "hello" "world"
+        $deployStorageUrl="https://${storageAccountName}.blob.core.windows.net/${$storageContainerName}/"
+        $targetFileName = "./DockerImage-${{ github.sha }}.tar"
+        az vm run-command invoke `
+          --resource-group $resource_group_name `
+          --name $vm_name `
+          --command-id "SetupVm" `
+          --scripts "./.github/workflows/Deploy.sh >> Deploy.log" `
+          --parameters $deployStorageUrl `
+                       $targetFileName `
+                       ${{ steps.myGetSecretAction.outputs.Discord__Token }} `
+                       ${{ steps.myGetSecretAction.outputs.Notion__Token }}
 
     - name: Azure Logout (Relevant on Self Hosted Runners)
       if: always()
