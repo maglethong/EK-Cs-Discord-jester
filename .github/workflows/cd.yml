@@ -21,30 +21,37 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Install .NET SDK
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 7.0.x
+#    - name: Install .NET SDK
+#      uses: actions/setup-dotnet@v3
+#      with:
+#        dotnet-version: 7.0.x
+#      
+#    - name: Restore NuGet Packages
+#      run: dotnet restore
+#      
+#    - name: Restore NuGet Workload
+#      run: dotnet workload restore
+#    
+#    - name: Build for linux
+#      run: >
+#        dotnet publish ./EK.Discord.Server/EK.Discord.Server.csproj
+#        --configuration Release 
+#        --output ./Build/Linux/ 
+#        --self-contained 
+#        --runtime linux-x64
+#        --no-restore
+#        
+#    - name: Build the Docker image
+#      run: >
+#        docker build 
+#        --file ./.github/workflows/Dockerfile 
+#        --tag maglethong/ek/discord/jester:${{ github.sha }}
+#        .
       
-    - name: Restore NuGet Packages
-      run: dotnet restore
-      
-    - name: Restore NuGet Workload
-      run: dotnet workload restore
-    
-    - name: Build for linux
-      run: >
-        dotnet publish ./EK.Discord.Server/EK.Discord.Server.csproj
-        --configuration Release 
-        --output ./Build/Linux/ 
-        --self-contained 
-        --runtime linux-x64
-        --no-restore
-        
     - name: Build the Docker image
       run: >
         docker build 
-        --file ./.github/workflows/Dockerfile 
+        --file Dockerfile 
         --tag maglethong/ek/discord/jester:${{ github.sha }}
         .
 
@@ -52,8 +59,7 @@ jobs:
       run: >
         docker image save 
         --output ./DockerImage
-        --tag maglethong/ek/discord/jester:${{steps.vars.outputs.sha}} 
-        .
+        maglethong/ek/discord/jester:${{ github.sha }}
     
     - name: Archive built Docker image
       uses: actions/upload-artifact@v3
