@@ -34,6 +34,8 @@ public static class SecretsManagerDependencyInjectionExtension {
                     azClientBuilder.AddSecretClient(configurationSection);
                     if (configurationSection.GetValue<bool>("UseBrowserCredentials")) {
                         azClientBuilder.UseCredential(new InteractiveBrowserCredential());
+                    } else {
+                        azClientBuilder.UseCredential(new DefaultAzureCredential());
                     }
                 });
         }

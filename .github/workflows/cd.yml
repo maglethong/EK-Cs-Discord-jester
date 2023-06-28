@@ -59,12 +59,25 @@ jobs:
           Write-Host Deleting old release file: $fileToDelete.Name
           az storage blob delete --name $fileToDelete.Name --account-name $storageAccountName --container-name $storageContainerName --auth-mode login --timeout 300
         }
+        
+# TODO -> This fails to connect. possibly missing permissions for the service principal?
     - name: Connect to Azure Key Vault
       uses: Azure/get-keyvault-secrets@v1
       with:
         keyvault: "dev-kv-ek-discord"
         secrets: 'Discord__Token, Notion__Token'
       id: myGetSecretAction
+      
+#  https://learn:
+#    microsoft:
+#      com/en-us/azure/virtual-machines/linux/run-command-managed:
+#  $PublicParametersArray = @([Microsoft.Azure.PowerShell.Cmdlets.Compute.Models.Api20210701.IRunCommandInputParameter]@{name='publicParam1';value='publicParam1value'},
+#  >> [Microsoft.Azure.PowerShell.Cmdlets.Compute.Models.Api20210701.IRunCommandInputParameter]@{name='publicParam2';value='publicParam2value'})
+#  
+#  $ProtectedParametersArray = @([Microsoft.Azure.PowerShell.Cmdlets.Compute.Models.Api20210701.IRunCommandInputParameter]@{name='secret1';value='secret1value'},
+#  >> [Microsoft.Azure.PowerShell.Cmdlets.Compute.Models.Api20210701.IRunCommandInputParameter]@{name='secret2';value='secret2value'})
+#  
+#  Set-AzVMRunCommand -ResourceGroupName MyRG0 -VMName MyVMEE -RunCommandName MyRunCommand -Location EastUS2EUAP -SourceScriptUri <SourceScriptUri> -Parameter $PublicParametersArray -ProtectedParameter $ProtectedParametersArray
 
     - name: WIP Deploy
       shell: pwsh

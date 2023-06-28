@@ -1,4 +1,4 @@
-﻿docker build -t maglethong/ek/discord/jester:local .
+﻿docker build -t maglethong/ek/discord/jester:latest .
 
 az login
 
@@ -24,4 +24,4 @@ docker run `
     -e Notion__Token=$Notion__Token `
     -e ASPNETCORE_ENVIRONMENT='Development' `
     -e DOTNET_ENVIRONMENT='Development' `
-    maglethong/ek/discord/jester:local
+    maglethong/ek/discord/jester:latest

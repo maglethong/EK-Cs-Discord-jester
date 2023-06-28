@@ -76,8 +76,12 @@ rm packages-microsoft-prod.deb
 
 AZURE_BLOB_CONTAINER_URL=$1
 IMAGE_VERSION=$2
-Discord__Token=$3
-Notion__Token=$4
+AZURE_CLIENT_ID=$3
+AZURE_TENANT_ID=$4
+AZURE_CLIENT_SECRET=$5
+
+AZURE_BLOB_CONTAINER_URL="https://dtekdiscterraformsa.blob.core.windows.net/publicreleases/"
+IMAGE_VERSION="075c48fd9fe04f6ffbe3bb08da9bed90cddadc5e"
 
 echo "AZURE_BLOB_CONTAINER_URL: $AZURE_BLOB_CONTAINER_URL";
 echo "IMAGE_VERSION: $IMAGE_VERSION";
@@ -101,9 +105,11 @@ docker run \
     -d \
     --name ek-discord-jester \
     -p 80:80 \
-    -e Discord__Token="$Discord__Token" \
-    -e Notion__Token="$Notion__Token" \
+    -e AZURE_CLIENT_ID="$AZURE_CLIENT_ID" \
+    -e AZURE_TENANT_ID="$AZURE_TENANT_ID" \
+    -e AZURE_CLIENT_SECRET="$AZURE_CLIENT_SECRET" \
     "maglethong/ek/discord/jester:latest" 
+    
 
 # remove image backup
 docker image rm "maglethong/ek/discord/jester:backup" 

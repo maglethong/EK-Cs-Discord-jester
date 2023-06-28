@@ -1,0 +1,12 @@
+﻿services:
+  ek-discord-jester:
+    environment:
+      - Discord__Token=${Discord__Token}
+      - Notion__Token=${Notion__Token}
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+    ports:
+      - "80:80"
+    image: "maglethong/ek/discord/jester:latest"
+    
