@@ -298,9 +298,15 @@ resource "azurerm_role_assignment" "Application_Pipeline_releases_Blobs" {
   principal_id         = azuread_service_principal.Application_Pipeline.id
 }
 
+resource "azurerm_role_assignment" "Application_Pipeline" {
+  scope                = azurerm_key_vault.vault.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azuread_service_principal.Application_Pipeline.id
+}
+
 resource "azurerm_key_vault_secret" "Application_Pipeline" {
   key_vault_id = azurerm_key_vault.vault.id
   content_type = "JSON"
   name = "EK-Discord-Jester--ServicePrincipal--credentials"
-  value = "{\"clientId\":\"${azuread_service_principal.Application_Pipeline.application_id}\",\"clientSecret\":\"${azuread_service_principal_password.Application_Pipeline.value}\",\"subscriptionId\":\"${data.azurerm_subscription.primary.id}\",\"tenantId\":\"${data.azurerm_subscription.primary.tenant_id}\"}"
+  value = "{\"clientId\":\"${azuread_service_principal.Application_Pipeline.application_id}\",\"clientSecret\":\"${azuread_service_principal_password.Application_Pipeline.value}\",\"subscriptionId\":\"${data.azurerm_subscription.primary.subscription_id}\",\"tenantId\":\"${data.azurerm_subscription.primary.tenant_id}\"}"
 }
