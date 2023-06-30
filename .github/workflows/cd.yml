@@ -19,9 +19,6 @@ jobs:
 
     steps:
 
-    - name: Check file exists
-      run: cat ./.github/workflows/Deploy.sh
-
     - name: Azure Login
       uses: azure/login@v1
       with:
@@ -38,6 +35,9 @@ jobs:
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
+
+    - name: Check file exists
+      run: cat ./.github/workflows/Deploy.sh
       
     - name: Build the Docker image
       run: >
