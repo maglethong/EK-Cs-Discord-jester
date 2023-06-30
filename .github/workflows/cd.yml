@@ -16,6 +16,19 @@ jobs:
 
     steps:
 
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS}}
+      
+      # TODO -> This fails to connect. possibly missing permissions for the service principal?
+    - name: Connect to Azure Key Vault
+      uses: Azure/get-keyvault-secrets@v1
+      with:
+        keyvault: "dev-kv-ek-discord"
+        secrets: 'Discord__Token, Notion__Token'
+      id: myGetSecretAction
+      
     - name: Checkout
       uses: actions/checkout@v3
       with:
@@ -33,11 +46,6 @@ jobs:
         docker image save 
         --output ./DockerImage.tar
         maglethong/ek/discord/jester:${{ github.sha }}
-    
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        creds: ${{secrets.AZURE_CREDENTIALS}}
 
       # TODO Get $storageAccountName/$storageContainerName from Vault and save link to vault as Github Variable 
       #      so we Decouple things a bit and make it easier to re-use the whole code 
@@ -59,14 +67,6 @@ jobs:
           Write-Host Deleting old release file: $fileToDelete.Name
           az storage blob delete --name $fileToDelete.Name --account-name $storageAccountName --container-name $storageContainerName --auth-mode login --timeout 300
         }
-        
-# TODO -> This fails to connect. possibly missing permissions for the service principal?
-    - name: Connect to Azure Key Vault
-      uses: Azure/get-keyvault-secrets@v1
-      with:
-        keyvault: "dev-kv-ek-discord"
-        secrets: 'Discord__Token, Notion__Token'
-      id: myGetSecretAction
       
 #  https://learn:
 #    microsoft:

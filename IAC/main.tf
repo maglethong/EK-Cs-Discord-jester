@@ -14,6 +14,21 @@ locals {
   current_user_id = coalesce(var.msi_id, data.azurerm_client_config.current.object_id)
 }
 
+
+# Create service Principal for pipeline
+resource "azuread_application" "Application" {
+  display_name = "EK-Discord-Jester"
+}
+
+resource "azuread_service_principal" "Application_Pipeline" {
+  application_id       = azuread_application.Application.application_id
+}
+
+resource "azuread_service_principal_password" "Application_Pipeline" {
+  service_principal_id = "${azuread_service_principal.Application_Pipeline.id}"
+  end_date_relative    = "240h"
+}
+
 # Create storage account for storing terraform state
 resource "azurerm_storage_account" "terraform_storage_account" {
   name                     = "dtekdiscterraformsa"
@@ -46,6 +61,14 @@ resource "azurerm_key_vault" "vault" {
 
     key_permissions    = ["List", "Create", "Delete", "Get", "Purge", "Recover", "Update", "GetRotationPolicy", "SetRotationPolicy"]
     secret_permissions = ["List", "Set", "Delete", "Get", "Purge", "Recover"]
+  }
+
+  access_policy {
+    tenant_id = data.azurerm_client_config.current.tenant_id
+    object_id = azuread_service_principal.Application_Pipeline.id
+
+    key_permissions    = ["List", "Get", "GetRotationPolicy"]
+    secret_permissions = ["List", "Get"]
   }
 }
 
@@ -245,20 +268,6 @@ resource "azurerm_key_vault_secret" "kv-ek-myvm-ip" {
   value = azurerm_public_ip.my_terraform_public_ip.ip_address
 }
 
-# Create service Principal
-resource "azuread_application" "Application" {
-  display_name = "EK-Discord-Jester"
-}
-
-resource "azuread_service_principal" "Application_Pipeline" {
-  application_id       = azuread_application.Application.application_id
-}
-
-resource "azuread_service_principal_password" "Application_Pipeline" {
-  service_principal_id = "${azuread_service_principal.Application_Pipeline.id}"
-  end_date_relative    = "240h"
-}
-
 # Pipeline Releases container
 resource "azurerm_storage_container" "releases_storage_container" {
   name                  = "publicreleases"
@@ -287,12 +296,6 @@ resource "azurerm_role_assignment" "Application_Pipeline_releases_StorageAccount
 resource "azurerm_role_assignment" "Application_Pipeline_releases_Blobs" {
   scope                = azurerm_storage_container.releases_storage_container.resource_manager_id
   role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = azuread_service_principal.Application_Pipeline.id
-}
-
-resource "azurerm_role_assignment" "Application_Pipeline" {
-  scope                = azurerm_key_vault.vault.id
-  role_definition_name = "Reader"
   principal_id         = azuread_service_principal.Application_Pipeline.id
 }
 
