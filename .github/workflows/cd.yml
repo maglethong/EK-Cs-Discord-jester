@@ -19,6 +19,9 @@ jobs:
 
     steps:
 
+    - name: Check file exists
+      run: cat ./.github/workflows/Deploy.sh
+
     - name: Azure Login
       uses: azure/login@v1
       with:
@@ -53,16 +56,28 @@ jobs:
     - name: Upload image to Azure storage account
       shell: pwsh
       id: upload
+      env:
+        COMMIT_SHA: ${{ github.sha }}
       run: |
         $imageFile = "./DockerImage.tar"
         $storageAccountName = $env:RELEASE_STORAGE_ACCOUNT_NAME
         $storageContainerName = $env:RELEASE_STORAGE_ACCOUNT_CONTAINER_NAME
-        $targetFileName = "./DockerImage-${{ github.sha }}.tar"
+        $targetFileName = "./DockerImage-${env:COMMIT_SHA}.tar"
+        
         Write-Host Uploading release to $targetFileName
-        az storage blob upload --file $imageFile --name $targetFileName --account-name $storageAccountName --container-name $storageContainerName --auth-mode login --timeout 300
+        
+        az storage blob upload `
+          --file $imageFile `
+          --name $targetFileName `
+          --account-name $storageAccountName `
+          --container-name $storageContainerName `
+          --auth-mode login `
+          --timeout 300
       
     - name: Deploy to VM
       shell: pwsh
+      env:
+        COMMIT_SHA: ${{ github.sha }}
       run: |
         $storageAccountName = $env:RELEASE_STORAGE_ACCOUNT_NAME
         $storageContainerName = $env:RELEASE_STORAGE_ACCOUNT_CONTAINER_NAME
@@ -72,14 +87,20 @@ jobs:
         $subscription = ((az account list | ConvertFrom-Json) | WHERE isDefault -eq $true).id
         $tenant = ((az account list | ConvertFrom-Json) | WHERE isDefault -eq $true).tenantId
         $deployStorageUrl="https://${storageAccountName}.blob.core.windows.net/${storageContainerName}/"
-        $targetFileName = "./DockerImage-${{ github.sha }}.tar"
+        $targetFileName = "./DockerImage-${env:COMMIT_SHA}.tar"
+        
+        echo "resource_group_name: $resource_group_name "
+        echo "vm_name: $vm_name "
+        echo "deployStorageUrl: $deployStorageUrl"
+        echo "COMMIT_SHA: ${env:COMMIT_SHA}"
+        
         az vm run-command invoke `
           --resource-group $resource_group_name `
           --name $vm_name `
           --command-id "SetupVm" `
           --scripts ./.github/workflows/Deploy.sh `
           --parameters "$deployStorageUrl" `
-                       "${{ github.sha }}" `
+                       "${env:COMMIT_SHA}" `
                        "${{ secrets.AZURE_CREDENTIALS }}"
 #        --error-blob-uri 
 #        --output-blob-uri
@@ -90,11 +111,27 @@ jobs:
       run: |
         $storageAccountName = $env:RELEASE_STORAGE_ACCOUNT_NAME
         $storageContainerName = $env:RELEASE_STORAGE_ACCOUNT_CONTAINER_NAME
-        $existingReleasesRaw = az storage blob list --account-name $storageAccountName --container-name $storageContainerName --auth-mode login --timeout 300
-        $toDeleteList = ($existingReleasesRaw | ConvertFrom-Json | Sort-Object $_.properties.lastModified) | Select-Object -Property name
+        
+        $existingReleasesRaw = az storage blob list `
+          --account-name $storageAccountName `
+          --container-name $storageContainerName `
+          --auth-mode login `
+          --timeout 300
+        
+        $toDeleteList = ( $existingReleasesRaw | `
+          ConvertFrom-Json | `
+          Sort-Object $_.properties.lastModified ) `
+          | Select-Object `
+          -Property name
+        
         foreach ($fileToDelete in $toDeleteList) {
           Write-Host Deleting old release file: $fileToDelete.Name
-          az storage blob delete --name $fileToDelete.Name --account-name $storageAccountName --container-name $storageContainerName --auth-mode login --timeout 300
+          az storage blob delete `
+            --name $fileToDelete.Name `
+            --account-name $storageAccountName `
+            --container-name $storageContainerName `
+            --auth-mode login `
+            --timeout 300
         }
         
     - name: Azure Logout (Relevant on Self Hosted Runners)
