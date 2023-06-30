@@ -35,9 +35,6 @@ jobs:
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
-
-    - name: Check file exists
-      run: cat ./.github/workflows/Deploy.sh
       
     - name: Build the Docker image
       run: >
@@ -85,14 +82,7 @@ jobs:
         $vm_name = $env:DEPLOY_VM_NAME
         $key_vault_name = $env:KEY_VAULT_NAME
         $subscription = ((az account list | ConvertFrom-Json) | WHERE isDefault -eq $true).id
-        $tenant = ((az account list | ConvertFrom-Json) | WHERE isDefault -eq $true).tenantId
         $deployStorageUrl="https://${storageAccountName}.blob.core.windows.net/${storageContainerName}/"
-        $targetFileName = "./DockerImage-${env:COMMIT_SHA}.tar"
-        
-        echo "resource_group_name: $resource_group_name "
-        echo "vm_name: $vm_name "
-        echo "deployStorageUrl: $deployStorageUrl"
-        echo "COMMIT_SHA: ${env:COMMIT_SHA}"
         
         az vm run-command invoke `
           --resource-group $resource_group_name `
@@ -100,8 +90,8 @@ jobs:
           --command-id "SetupVm" `
           --scripts ./.github/workflows/Deploy.sh `
           --parameters "$deployStorageUrl" `
-                       "${env:COMMIT_SHA}" `
-                       "${{ secrets.AZURE_CREDENTIALS }}"
+                       "${env:COMMIT_SHA}" 
+#                       "${{ secrets.AZURE_CREDENTIALS }}"
 #        --error-blob-uri 
 #        --output-blob-uri
 
