@@ -6,10 +6,6 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        configuration: [Release]
-        
     # For a list of available runner types, refer to
     # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
     runs-on: ubuntu-22.04  
@@ -26,7 +22,7 @@ jobs:
       uses: Azure/get-keyvault-secrets@v1
       with:
         keyvault: "dev-kv-ek-discord"
-        secrets: 'Discord__Token, Notion__Token'
+        secrets: 'Discord--Token, Notion--Token'
       id: myGetSecretAction
       
     - name: Checkout
@@ -97,9 +93,8 @@ jobs:
           --command-id "SetupVm" `
           --scripts "./.github/workflows/Deploy.sh >> Deploy.log" `
           --parameters $deployStorageUrl `
-                       $targetFileName `
-                       ${{ steps.myGetSecretAction.outputs.Discord__Token }} `
-                       ${{ steps.myGetSecretAction.outputs.Notion__Token }}
+                       "${{ github.sha }}" `
+                       "${{ secrets.AZURE_CREDENTIALS }}"
 
     - name: Azure Logout (Relevant on Self Hosted Runners)
       if: always()
