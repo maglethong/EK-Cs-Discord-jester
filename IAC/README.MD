@@ -11,7 +11,6 @@
       "resource_group_name": "rg-ek",
       "host_vm_name": "mv-myvm",
       "host_vm": {
-        "create": true,
         "enable_ssh": false,
         "size": "Standard_B1ls"
       },

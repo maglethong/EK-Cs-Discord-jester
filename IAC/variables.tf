@@ -2,13 +2,11 @@
 
 variable "host_vm" {
   type = object({
-    create     = bool
     enable_ssh = bool
     size       = string
   })
   description  = "Configuration variables for the vm hosting the application"
   default      = ({
-    create     = true
     enable_ssh = false
     # ~3.8$ / Month on June 2023
     size       = "Standard_B1ls"

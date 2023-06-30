@@ -163,9 +163,9 @@ resource "azurerm_network_security_group" "my_terraform_nsg" {
 
 # Create network interface
 resource "azurerm_network_interface" "my_terraform_nic" {
-  name                = "nic-mynic"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  name                            = "nic-mynic"
+  location                        = azurerm_resource_group.rg.location
+  resource_group_name             = azurerm_resource_group.rg.name
 
   ip_configuration {
     name                          = "my_nic_configuration"
@@ -200,9 +200,6 @@ resource "tls_private_key" "example_ssh" {
 
 # Create virtual machine
 resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
-  
-  count = var.host_vm.create == true ? 1 : 0
-
   name                  = var.host_vm_name
   location              = azurerm_resource_group.rg.location
   resource_group_name   = azurerm_resource_group.rg.name
@@ -298,9 +295,28 @@ resource "azurerm_role_assignment" "Application_Pipeline_releases_Blobs" {
   principal_id         = azuread_service_principal.Application_Pipeline.id
 }
 
-resource "azurerm_role_assignment" "Application_Pipeline" {
+resource "azurerm_role_assignment" "Application_Pipeline_vault_user" {
   scope                = azurerm_key_vault.vault.id
   role_definition_name = "Key Vault Secrets User"
+  principal_id         = azuread_service_principal.Application_Pipeline.id
+}
+
+resource "azurerm_role_definition" "vm_runner" {
+  name        = "VM Command Invoker"
+  scope       = data.azurerm_subscription.primary.id
+  description = "Custom role allowing user to run commands on vm"
+
+  permissions {
+    actions     = ["Microsoft.Compute/virtualMachines/runCommand/action"]
+    not_actions = []
+  }
+
+  assignable_scopes = [data.azurerm_subscription.primary.id]
+}
+
+resource "azurerm_role_assignment" "Application_Pipeline_Vm_Cmd_Invoker" {
+  scope                = azurerm_linux_virtual_machine.my_terraform_vm.id
+  role_definition_name = azurerm_role_definition.vm_runner.name
   principal_id         = azuread_service_principal.Application_Pipeline.id
 }
 
