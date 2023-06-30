@@ -2,7 +2,7 @@
 using Discord.WebSocket;
 using Notion.Client;
 
-namespace EK.Discord.Bot.Template;
+namespace EK.Discord.Server.Bot.Template;
 
 /// <summary>
 ///     Template Command Module from https://discordnet.dev/guides/text_commands/intro.html

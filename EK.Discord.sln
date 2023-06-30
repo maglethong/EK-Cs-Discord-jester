@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EK.Discord.Client", "EK.Dis
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EK.Discord.Common", "EK.Discord.Common\EK.Discord.Common.csproj", "{17CFE0B6-FAEB-4AAF-AE13-F367A61DFF9C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EK.Discord.Server.Bot", "EK.Discord.Server.Bot\EK.Discord.Server.Bot.csproj", "{EB5F24B7-0250-40B9-AFA4-AE0DADB6484E}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionResources", "SolutionResources", "{5F26410B-6D8B-4697-B455-F6F3C60767EF}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
@@ -20,8 +22,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionResources", "Soluti
 		NuGet.config = NuGet.config
 		Dockerfile = Dockerfile
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EK.Discord.Bot", "EK.Discord.Bot\EK.Discord.Bot.csproj", "{EB5F24B7-0250-40B9-AFA4-AE0DADB6484E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

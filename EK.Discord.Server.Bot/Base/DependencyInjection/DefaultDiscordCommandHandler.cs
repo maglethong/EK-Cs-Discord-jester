@@ -3,7 +3,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EK.Discord.Bot.Base.DependencyInjection;
+namespace EK.Discord.Server.Bot.Base.DependencyInjection;
 
 /// <summary>
 ///     Default implementation of <see cref="IDiscordCommandHandler"/> as Suggested by https://discordnet.dev/guides/text_commands/intro.html

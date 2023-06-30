@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 
-namespace EK.Discord.Bot.Base.DependencyInjection;
+namespace EK.Discord.Server.Bot.Base.DependencyInjection;
 
 /// <summary>
 ///     Extension class for <see cref="IServiceCollection"/> for configuring <see cref="IDiscordClient"/>

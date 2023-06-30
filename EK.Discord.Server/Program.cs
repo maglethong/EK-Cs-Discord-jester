@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Discord;
-using EK.Discord.Bot.Base.DependencyInjection;
+using EK.Discord.Server.Bot.Base.DependencyInjection;
 using EK.Discord.Server.Base.Configuration;
 using EK.Discord.Server.Base.Notion;
 using EK.Discord.Server.TemplateComponent;
