@@ -2,7 +2,7 @@ name: CD
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "feature/finish-cd-pipeline" ]
 
 jobs:
   build:
