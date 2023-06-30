@@ -61,17 +61,6 @@ jobs:
         Write-Host Uploading release to $targetFileName
         az storage blob upload --file $imageFile --name $targetFileName --account-name $storageAccountName --container-name $storageContainerName --auth-mode login --timeout 300
       
-#  https://learn:
-#    microsoft:
-#      com/en-us/azure/virtual-machines/linux/run-command-managed:
-#  $PublicParametersArray = @([Microsoft.Azure.PowerShell.Cmdlets.Compute.Models.Api20210701.IRunCommandInputParameter]@{name='publicParam1';value='publicParam1value'},
-#  >> [Microsoft.Azure.PowerShell.Cmdlets.Compute.Models.Api20210701.IRunCommandInputParameter]@{name='publicParam2';value='publicParam2value'})
-#  
-#  $ProtectedParametersArray = @([Microsoft.Azure.PowerShell.Cmdlets.Compute.Models.Api20210701.IRunCommandInputParameter]@{name='secret1';value='secret1value'},
-#  >> [Microsoft.Azure.PowerShell.Cmdlets.Compute.Models.Api20210701.IRunCommandInputParameter]@{name='secret2';value='secret2value'})
-#  
-#  Set-AzVMRunCommand -ResourceGroupName MyRG0 -VMName MyVMEE -RunCommandName MyRunCommand -Location EastUS2EUAP -SourceScriptUri <SourceScriptUri> -Parameter $PublicParametersArray -ProtectedParameter $ProtectedParametersArray
-
     - name: Deploy to VM
       shell: pwsh
       run: |
@@ -88,10 +77,12 @@ jobs:
           --resource-group $resource_group_name `
           --name $vm_name `
           --command-id "SetupVm" `
-          --scripts "./.github/workflows/Deploy.sh >> Deploy.log" `
+          --scripts ./.github/workflows/Deploy.sh `
           --parameters "$deployStorageUrl" `
                        "${{ github.sha }}" `
                        "${{ secrets.AZURE_CREDENTIALS }}"
+#        --error-blob-uri 
+#        --output-blob-uri
 
     - name: Cleanup Storage
       shell: pwsh
