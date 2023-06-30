@@ -8,17 +8,17 @@
 
     ```json
     {
-     "resource_group_name": "rg-ek",
-     "host_vm_name": "mv-myvm",
-     "host_vm": {
-       "create": true,
-       "enable_ssh": false,
-       "size": "Standard_B1ls"
-     },
-     "vault_name": "kv-ek-discord",
-     "vm_admin_user": "azureuser",
-     "ssh_private_key_secret_name": "kv-ek-my-vm-ssh-priv",
-     "vm_ip_secret_name": "kv-ek-my-vm-ip"
+      "resource_group_name": "rg-ek",
+      "host_vm_name": "mv-myvm",
+      "host_vm": {
+        "create": true,
+        "enable_ssh": false,
+        "size": "Standard_B1ls"
+      },
+      "vault_name": "kv-ek-discord",
+      "vm_admin_user": "azureuser",
+      "ssh_private_key_secret_name": "kv-ek-my-vm-ssh-priv",
+      "vm_ip_secret_name": "kv-ek-my-vm-ip"
     }
     ```
        
