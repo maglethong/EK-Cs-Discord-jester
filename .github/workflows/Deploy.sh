@@ -1,5 +1,7 @@
 ﻿#! /bin/bash
 
+echo "$(date) --- Start"
+
 ##################
 # Install docker #
 ##################
@@ -76,19 +78,19 @@ rm packages-microsoft-prod.deb
 
 AZURE_BLOB_CONTAINER_URL=$1
 IMAGE_VERSION=$2
-AZURE_CREDENTIALS_JSON=$3
+echo "$3" > creds.json
 
-echo AZURE_CREDENTIALS_JSON > creds.json
 AZURE_CLIENT_ID=$(powershell -command "(cat creds.json |  ConvertFrom-Json).clientId")
 AZURE_TENANT_ID=$(powershell -command "(cat creds.json |  ConvertFrom-Json).clientId")
 AZURE_CLIENT_SECRET=$(powershell -command "(cat creds.json |  ConvertFrom-Json).clientId")
 rm creds.json
 
-echo "AZURE_BLOB_CONTAINER_URL: $AZURE_BLOB_CONTAINER_URL";
-echo "IMAGE_VERSION: $IMAGE_VERSION";
-echo "AZURE_CLIENT_ID: $AZURE_CLIENT_ID";
-echo "AZURE_TENANT_ID: $AZURE_TENANT_ID";
-echo "AZURE_CLIENT_SECRET: *****";
+# shellcheck disable=SC2129
+echo "AZURE_BLOB_CONTAINER_URL: $AZURE_BLOB_CONTAINER_URL"
+echo "IMAGE_VERSION: $IMAGE_VERSION"
+echo "AZURE_CLIENT_ID: $AZURE_CLIENT_ID"
+echo "AZURE_TENANT_ID: $AZURE_TENANT_ID"
+echo "AZURE_CLIENT_SECRET: *****"
 
 # Stop and cleanup all old image
 docker stop ek-discord-jester
@@ -117,6 +119,9 @@ docker run \
 
 # remove image backup
 docker image rm "maglethong/ek/discord/jester:backup" 
+
+echo "$(date) --- Finished"
+echo "================================================================================================="
 
 # TODO:
 # [] Use a docker compose file
