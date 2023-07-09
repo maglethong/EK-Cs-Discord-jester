@@ -33,43 +33,44 @@ jobs:
       
     - name: Checkout
       uses: actions/checkout@v3
+      id: checkout
       with:
         fetch-depth: 0
-      
-    - name: Build the Docker image
-      run: >
-        docker build 
-        --file Dockerfile 
-        --tag maglethong/ek/discord/jester:${{ github.sha }}
-        .
-
-    - name: Export docker image
-      run: >
-        docker image save 
-        --output ./DockerImage.tar
-        maglethong/ek/discord/jester:${{ github.sha }}
-
-      # TODO Put code in a .ps1 file since it's getting kinda hard to read it here
-    - name: Upload image to Azure storage account
-      shell: pwsh
-      id: upload
-      env:
-        COMMIT_SHA: ${{ github.sha }}
-      run: |
-        $imageFile = "./DockerImage.tar"
-        $storageAccountName = $env:RELEASE_STORAGE_ACCOUNT_NAME
-        $storageContainerName = $env:RELEASE_STORAGE_ACCOUNT_CONTAINER_NAME
-        $targetFileName = "./DockerImage-${env:COMMIT_SHA}.tar"
-        
-        Write-Host Uploading release to $targetFileName
-        
-        az storage blob upload `
-          --file $imageFile `
-          --name $targetFileName `
-          --account-name $storageAccountName `
-          --container-name $storageContainerName `
-          --auth-mode login `
-          --timeout 300
+#      
+#    - name: Build the Docker image
+#      run: >
+#        docker build 
+#        --file Dockerfile 
+#        --tag maglethong/ek/discord/jester:${{ github.sha }}
+#        .
+#
+#    - name: Export docker image
+#      run: >
+#        docker image save 
+#        --output ./DockerImage.tar
+#        maglethong/ek/discord/jester:${{ github.sha }}
+#
+#      # TODO Put code in a .ps1 file since it's getting kinda hard to read it here
+#    - name: Upload image to Azure storage account
+#      shell: pwsh
+#      id: upload
+#      env:
+#        COMMIT_SHA: ${{ github.sha }}
+#      run: |
+#        $imageFile = "./DockerImage.tar"
+#        $storageAccountName = $env:RELEASE_STORAGE_ACCOUNT_NAME
+#        $storageContainerName = $env:RELEASE_STORAGE_ACCOUNT_CONTAINER_NAME
+#        $targetFileName = "./DockerImage-${env:COMMIT_SHA}.tar"
+#        
+#        Write-Host Uploading release to $targetFileName
+#        
+#        az storage blob upload `
+#          --file $imageFile `
+#          --name $targetFileName `
+#          --account-name $storageAccountName `
+#          --container-name $storageContainerName `
+#          --auth-mode login `
+#          --timeout 300
       
     - name: Deploy to VM
       shell: pwsh
@@ -84,13 +85,21 @@ jobs:
         $subscription = ((az account list | ConvertFrom-Json) | WHERE isDefault -eq $true).id
         $deployStorageUrl="https://${storageAccountName}.blob.core.windows.net/${storageContainerName}/"
         
+        ls ./.github/workflows/
+        
+        echo ${{ steps.checkout }}
+        echo ${{ steps.checkout.conclusion }}
+        
         az vm run-command invoke `
           --resource-group $resource_group_name `
           --name $vm_name `
           --command-id "SetupVm" `
           --scripts ./.github/workflows/Deploy.sh `
           --parameters "$deployStorageUrl" `
-                       "${env:COMMIT_SHA}" 
+                       "" `
+                       "${{ secrets.AZURE_CREDENTIALS }}"
+      #          --parameters "$deployStorageUrl" `
+#                       "${env:COMMIT_SHA}" `
 #                       "${{ secrets.AZURE_CREDENTIALS }}"
 #        --error-blob-uri 
 #        --output-blob-uri
