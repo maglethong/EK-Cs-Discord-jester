@@ -25,7 +25,7 @@ resource "azuread_service_principal" "Application_Pipeline" {
 
 resource "azuread_service_principal_password" "Application_Pipeline" {
   service_principal_id = "${azuread_service_principal.Application_Pipeline.id}"
-  end_date_relative    = "240h"
+  end_date             = var.service_principal_expiration_date
 }
 
 # Create storage account for storing terraform state
@@ -325,4 +325,5 @@ resource "azurerm_key_vault_secret" "Application_Pipeline" {
   content_type = "JSON"
   name = "EK-Discord-Jester--ServicePrincipal--credentials"
   value = "{\"clientId\":\"${azuread_service_principal.Application_Pipeline.application_id}\",\"clientSecret\":\"${azuread_service_principal_password.Application_Pipeline.value}\",\"subscriptionId\":\"${data.azurerm_subscription.primary.subscription_id}\",\"tenantId\":\"${data.azurerm_subscription.primary.tenant_id}\"}"
+  expiration_date = azuread_service_principal_password.Application_Pipeline.end_date
 }

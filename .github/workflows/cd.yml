@@ -33,7 +33,6 @@ jobs:
       
     - name: Checkout
       uses: actions/checkout@v3
-      id: checkout
       with:
         fetch-depth: 0
 #      
@@ -85,10 +84,9 @@ jobs:
         $subscription = ((az account list | ConvertFrom-Json) | WHERE isDefault -eq $true).id
         $deployStorageUrl="https://${storageAccountName}.blob.core.windows.net/${storageContainerName}/"
         
+        ls ./
+        ls ./.github
         ls ./.github/workflows/
-        
-        echo ${{ steps.checkout }}
-        echo ${{ steps.checkout.conclusion }}
         
         az vm run-command invoke `
           --resource-group $resource_group_name `
