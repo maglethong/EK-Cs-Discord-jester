@@ -3,7 +3,9 @@ using Discord;
 using EK.Discord.Server.Bot.Base.DependencyInjection;
 using EK.Discord.Server.Base.Configuration;
 using EK.Discord.Server.Base.Notion;
+using EK.Discord.Server.Notion;
 using EK.Discord.Server.TemplateComponent;
+using Notion.Client;
 
 namespace EK.Discord.Server;
 
@@ -20,9 +22,9 @@ public class Program {
                .AddRazorPages()
                .Services
                // Configure Discord
-//               .AddDiscord()
+               .AddDiscord()
                // Configure Notion
-//               .AddNotion() // TODO -> Alternative for loading multiple Tokens
+               .AddNotion() // TODO -> Alternative for loading multiple Tokens
                // Add Azure Clients
                .AddAzureKeyVaultSecretsManager(builder.Configuration);
 
@@ -63,11 +65,18 @@ public class Program {
            );
         
         // Start Discord Client
-        app.Services
-           .GetService<IDiscordClient>()
-           ?.StartAsync();
+//        app.Services
+//           .GetService<IDiscordClient>()
+//           ?.StartAsync();
 
-        new Cralwer().Run();
+//        new Cralwer(app.Services).Run();
+
+        var client = app.Services
+           .GetService<INotionClient>()!;
+//        new TestNotionRepo(client).Create(new TestTo() {
+//            Skill = "TEST"
+//        });
+        var all = new TestNotionRepo(client).GetAll();
         
         app.Run();
     }

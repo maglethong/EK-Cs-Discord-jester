@@ -20,6 +20,7 @@
   <!-- Sister Projects -->
   <ItemGroup>
     <ProjectReference Include="..\EK.Discord.Server.Bot\EK.Discord.Server.Bot.csproj" />
+    <ProjectReference Include="..\EK.Discord.Server.Notion\EK.Discord.Server.Notion.csproj" />
     <ProjectReference Include="..\EK.Discord.Client\EK.Discord.Client.csproj" />
     <ProjectReference Include="..\EK.Discord.Common\EK.Discord.Common.csproj" />
   </ItemGroup>

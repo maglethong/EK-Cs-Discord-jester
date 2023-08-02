@@ -5,6 +5,12 @@ namespace EK.Discord.Server;
 
 public class Cralwer {
 
+    private readonly IServiceProvider _services;
+
+    public Cralwer(IServiceProvider services) {
+        this._services = services;
+    }
+
     private const string baseUrl = "http://dnd5e.wikidot.com";
 
     public void Run() {
@@ -14,12 +20,13 @@ public class Cralwer {
         doc.LoadHtml(s);
 
         Random random = new Random();
-        var tmp =
+        List<SpellTo> spells =
             doc.GetElementbyId("wiki-tab-0-9")
                // Find table
                .ParentNode
                // List all table tab contents
                .Elements("div")
+               .AsParallel()
                .Select(o => o.Element("div"))
                .Select(o => o.Element("table"))
                // Flatten Table Body
