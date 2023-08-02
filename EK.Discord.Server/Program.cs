@@ -20,9 +20,9 @@ public class Program {
                .AddRazorPages()
                .Services
                // Configure Discord
-               .AddDiscord()
+//               .AddDiscord()
                // Configure Notion
-               .AddNotion() // TODO -> Alternative for loading multiple Tokens
+//               .AddNotion() // TODO -> Alternative for loading multiple Tokens
                // Add Azure Clients
                .AddAzureKeyVaultSecretsManager(builder.Configuration);
 
@@ -67,6 +67,8 @@ public class Program {
            .GetService<IDiscordClient>()
            ?.StartAsync();
 
+        new Cralwer().Run();
+        
         app.Run();
     }
 
