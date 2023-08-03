@@ -28,3 +28,14 @@ az vm run-command invoke `
     --scripts "echo $1 $2" `
     --parameters "hello" "world"
 
+
+$spJson = $sp | ConvertTo-Json -Compress
+
+az vm run-command invoke `
+          --resource-group $resource_group_name `
+          --name $vm_name `
+          --command-id "SetupVm" `
+          --scripts "@./.github/workflows/Deploy.sh" `
+          --parameters "$deployStorageUrl" `
+                       "" `
+                       "$spJson"
