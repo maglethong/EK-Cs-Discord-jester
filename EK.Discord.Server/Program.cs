@@ -69,7 +69,7 @@ public class Program {
 //           .GetService<IDiscordClient>()
 //           ?.StartAsync();
 
-        new Cralwer(app.Services).Run();
+        new Crawler(app.Services).Run();
         
         app.Run();
     }

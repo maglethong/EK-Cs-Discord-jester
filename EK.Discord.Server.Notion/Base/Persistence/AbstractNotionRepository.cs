@@ -48,4 +48,8 @@ public abstract class AbstractNotionRepository<TEntity> : IRepository
                     .Deserialize<TEntity>();
     }
 
+    protected TEntity Update(TEntity value) {
+        throw new NotImplementedException();
+    }
+
 }

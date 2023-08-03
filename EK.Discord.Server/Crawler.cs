@@ -2,29 +2,82 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using EK.Discord.Server.Notion.Base.Persistence;
 using HtmlAgilityPack;
 using Notion.Client;
 
 namespace EK.Discord.Server;
 
-public class Cralwer {
+[SuppressMessage("ReSharper", "ConvertToPrimaryConstructor", Justification = "Horrible Syntax")]
+[SuppressMessage("ReSharper", "ReplaceWithSingleCallToSingleOrDefault")]
+public class Crawler {
 
-    private readonly IServiceProvider _services;
+    private TestNotionRepo Repo { get; }
 
-    public Cralwer(IServiceProvider services) {
-        this._services = services;
+    public Crawler(IServiceProvider services) {
+        Repo = new TestNotionRepo(services.GetService<INotionClient>()!);
     }
 
     public void Run() {
-////        new TestNotionRepo(client).Create(new TestTo() {
-////            Skill = "TEST"
-////        });
-        TestNotionRepo repo = new TestNotionRepo(_services.GetService<INotionClient>()!);
-
+        IDictionary<string, SpellTo> existing = Repo.GetAll()
+                                                    .ToDictionary(o => o.Name.Trim().ToLowerInvariant(), o=>o);
         var spells = GetAllSpells()
-                     .Select(o => repo.Create(o))
+                     .Select(o => new {
+                         oldVal = existing.TryGetValue(o.Name.Trim().ToLowerInvariant(), out SpellTo? value) ? value : null,
+                         newVal = o,
+                     })
+                     .Select(o => Merge(o.oldVal, o.newVal))
+                     .Where(o => o != null)
+                     .Select(o => Repo.CreateOrUpdate(o!))
                      .ToList();
+    }
+
+    private static SpellTo? Merge(SpellTo? oldVal, SpellTo newVal) {
+        if (oldVal == null) {
+            return newVal;
+        }
+        List<string> changed = typeof(SpellTo)
+                               .GetProperties()
+                               .Select(o => new {
+                                       Attribute = o.GetCustomAttribute<ColumnAttribute>(),
+                                       Property = o,
+                                   }
+                               )
+                               .Where(o => o.Attribute != null)
+                               .Select(o => new {
+                                   o.Property,
+                                   OldPropValue = o.Property.GetValue(oldVal),
+                                   NewPropValue = o.Property.GetValue(newVal),
+                               })
+                               .Where(o => !AreEqual(o.OldPropValue, o.NewPropValue))
+                               .Select(o => {
+                                   o.Property.SetValue(oldVal, o.NewPropValue);
+                                   return o.Property.Name;
+                               })
+                               .ToList();
+
+
+        return changed.Any() ? oldVal : null;
+    }
+    
+    private static bool AreEqual(object? a, object? b) {
+        if (a == null && b == null) {
+            return true;
+        }
+        if (a == null || b == null) {
+            return false;
+        }
+        if (a.Equals(b)) {
+            return true;
+        }
+        if (a.GetType().IsAssignableTo(typeof(IEnumerable)) && b.GetType().IsAssignableTo(typeof(IEnumerable))) {
+            IEnumerable<object?> ae = ((IEnumerable) a).Cast<object?>().ToList();
+            IEnumerable<object?> be = ((IEnumerable) b).Cast<object?>().ToList();
+            return ae.All(o => be.Any(k => AreEqual(k, o))) && 
+                   be.All(o => ae.Any(k => AreEqual(k, o)));
+        }
+        return false;
     }
 
     private const string baseUrl = "http://dnd5e.wikidot.com";
@@ -56,7 +109,6 @@ public class Cralwer {
                   .Where(o => o != null)
                   .Select(o => o!.Value)
                   .Select(o => $"{baseUrl}{o}")
-                  .OrderBy(order => random.Next()) // TODO remove
                   // Process Spell Link
                   .Select(o => ProcessSpellPage(o));
     }
@@ -165,7 +217,7 @@ public class Cralwer {
                           .InnerText
                           .Replace("Spell Lists. ", string.Empty, StringComparison.InvariantCultureIgnoreCase)
                           .Split(", ")
-                          .Select(o => o.Replace("(Optional)", ""))
+                          .Select(o => o.Replace("(Optional)", "").Trim())
                           .ToList();
 
         spell.Description = pageContentElement.InnerText;
@@ -182,7 +234,13 @@ public class TestNotionRepo : AbstractNotionRepository<SpellTo> {
     }
 
     public IReadOnlyList<SpellTo> GetAll() => RunQuery(new DatabasesQueryParameters()).ToList();
-    public SpellTo Create(SpellTo newValue) => base.Create(newValue);
+    public SpellTo CreateOrUpdate(SpellTo value) {
+        if (value.Id == Guid.Empty) {
+            return Create(value);
+        } else {
+            return Update(value);
+        }
+    }
 
 }
 
