@@ -47,7 +47,11 @@ public static class NotionTableEntryDeserializerExtension {
 
     private static object? Deserialize(this PropertyValue value) {
         return value.Type switch {
-            PropertyValueType.Title => ((TitlePropertyValue) value).Title[0].PlainText,
+            PropertyValueType.Title => ((TitlePropertyValue) value).Title.FirstOrDefault()?.PlainText,
+            PropertyValueType.Select => ((SelectPropertyValue) value).Select?.Name,
+            PropertyValueType.MultiSelect => ((MultiSelectPropertyValue) value).MultiSelect
+                                                                               .Select(o => o.Name)
+                                                                               .ToList(),
             _ => throw new NotImplementedException($"Not implemented for Type {value.Type}")
         };
     }

@@ -69,14 +69,7 @@ public class Program {
 //           .GetService<IDiscordClient>()
 //           ?.StartAsync();
 
-//        new Cralwer(app.Services).Run();
-
-        var client = app.Services
-           .GetService<INotionClient>()!;
-//        new TestNotionRepo(client).Create(new TestTo() {
-//            Skill = "TEST"
-//        });
-        var all = new TestNotionRepo(client).GetAll();
+        new Cralwer(app.Services).Run();
         
         app.Run();
     }
