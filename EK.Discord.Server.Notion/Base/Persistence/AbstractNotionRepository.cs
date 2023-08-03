@@ -38,13 +38,14 @@ public abstract class AbstractNotionRepository<TEntity> : IRepository
                .ToList();
     }
 
-    protected void Create(TEntity newEntry) {
-        NotionClient.Pages
+    protected TEntity Create(TEntity newEntry) {
+        return NotionClient.Pages
                     .CreateAsync(new PagesCreateParameters() {
                         Parent = DbPage,
                         Properties = newEntry.Serialize(),
                     })
-                    .Wait();
+                    .Result
+                    .Deserialize<TEntity>();
     }
 
 }

@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.Collections;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using Notion.Client;
 
@@ -35,11 +37,32 @@ public static class NotionTableEntryDeserializerExtension {
     private static PropertyValue Serialize(this object? value, PropertyValueType type) {
         return type switch {
             PropertyValueType.Title => new TitlePropertyValue() {
-                Title = new [] {
-                    new RichTextText() {
-                        Text = new Text(){ Content = value?.ToString() ?? string.Empty }
-                    } as RichTextBase
-                }.ToList()
+                Title = (value?.ToString() ?? string.Empty)
+                        .Split("\n")
+                        .Select(o => new RichTextText() { Text = new Text() { Content = o } })
+                        .Cast<RichTextBase>()
+                        .ToList()
+            },
+            PropertyValueType.RichText => new RichTextPropertyValue () {
+                RichText = (value?.ToString() ?? string.Empty)
+                           .Split("\n")
+                           .Select(o => new RichTextText() { Text = new Text() { Content = o } })
+                           .Cast<RichTextBase>()
+                           .ToList()
+            },
+            PropertyValueType.Select => new SelectPropertyValue () {
+                Select = new SelectOption() {
+                    Name = value?.ToString() ?? string.Empty
+                }
+            },
+            PropertyValueType.Url => new UrlPropertyValue() {
+                Url = value?.ToString() ?? string.Empty
+            },
+            PropertyValueType.MultiSelect => new MultiSelectPropertyValue() {
+                MultiSelect = (value as IEnumerable)?
+                              .Cast<object?>()
+                              .Select(o => new SelectOption() { Name = o?.ToString() ?? string.Empty })
+                              .ToList() ?? new List<SelectOption>(),
             },
             _ => throw new NotImplementedException($"Not implemented for Type {type}")
         };
@@ -47,8 +70,14 @@ public static class NotionTableEntryDeserializerExtension {
 
     private static object? Deserialize(this PropertyValue value) {
         return value.Type switch {
-            PropertyValueType.Title => ((TitlePropertyValue) value).Title.FirstOrDefault()?.PlainText,
+            PropertyValueType.Title => ((TitlePropertyValue) value).Title
+                                                                   .Select(o=>o.PlainText)
+                                                                   .Aggregate((a, b) => $"{a}\n{b}"),
+            PropertyValueType.RichText => ((RichTextPropertyValue) value).RichText
+                                                                         .Select(o=>o.PlainText)
+                                                                         .Aggregate((a, b) => $"{a}\n{b}"),
             PropertyValueType.Select => ((SelectPropertyValue) value).Select?.Name,
+            PropertyValueType.Url => ((UrlPropertyValue) value).Url,
             PropertyValueType.MultiSelect => ((MultiSelectPropertyValue) value).MultiSelect
                                                                                .Select(o => o.Name)
                                                                                .ToList(),
@@ -95,6 +124,28 @@ public static class NotionTableEntryDeserializerExtension {
             // TODO make foreach extension
             .ToList();
 
+        typeof(TEntity)
+            .GetProperties()
+            .Select(o => new {
+                    Attribute = o.GetCustomAttribute<KeyAttribute>(),
+                    Property = o,
+                }
+            )
+            .Where(o => o.Attribute != null)
+            .Select(o => new {
+                    o.Property,
+                    TypesMatch = o.Property.PropertyType == typeof(Guid),
+                }
+            )
+            .Where(o => o.TypesMatch)
+            .Select(o => {
+                    o.Property.SetValue(ret, Guid.Parse(notionTableLine.Id));
+                    return 1;
+                }
+            )
+            // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+            .SingleOrDefault();
+        
         return ret;
     }
 }
