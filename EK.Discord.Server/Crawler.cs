@@ -6,6 +6,7 @@ using System.Reflection;
 using EK.Discord.Server.Notion.Base.Persistence;
 using HtmlAgilityPack;
 using Notion.Client;
+using ReverseMarkdown;
 
 namespace EK.Discord.Server;
 
@@ -13,14 +14,16 @@ namespace EK.Discord.Server;
 [SuppressMessage("ReSharper", "ReplaceWithSingleCallToSingleOrDefault")]
 public class Crawler {
 
-    private TestNotionRepo Repo { get; }
+    private NotionRepository<SpellTo> Repo { get; }
+    protected INotionClient NotionClient { get; }
 
     public Crawler(IServiceProvider services) {
-        Repo = new TestNotionRepo(services.GetService<INotionClient>()!);
+        NotionClient = services.GetService<INotionClient>()!;
+        Repo = new NotionRepository<SpellTo>(NotionClient);
     }
 
     public void Run() {
-        IDictionary<string, SpellTo> existing = Repo.GetAll()
+        IDictionary<string, SpellTo> existing = Repo.Request()
                                                     .ToDictionary(o => o.Name.Trim().ToLowerInvariant(), o=>o);
         var spells = GetAllSpells()
                      .Select(o => new {
@@ -29,7 +32,38 @@ public class Crawler {
                      })
                      .Select(o => Merge(o.oldVal, o.newVal))
                      .Where(o => o != null)
+                     .Cast<SpellTo>()
                      .Select(o => Repo.CreateOrUpdate(o!))
+                     // TODO Move this logic to CreateOrUpdate
+                     // TODO Add Custom Attributes for Notion on Entity
+                     // TODO Create attribute for page content as Markdown
+                     .Select(o => {
+                         var blocks = o.Description
+                          .Split("\n")
+                          .Where(k => !string.IsNullOrWhiteSpace(k))
+                          .Select(k => new ParagraphBlock() {
+                                      Paragraph = new() {
+                                          RichText = k
+                                                  .Split("\n")
+                                                  // TODO Parse Markdown to Notion blocks (Need to convert and set properties)
+                                                  .Select(p => new RichTextText() { Text = new Text() { Content = p } })
+                                                  .Cast<RichTextBase>()
+                                                  .ToList()
+                                      }
+                                  }
+                          )
+                          .ToList();
+                         
+                         var updated = NotionClient.Blocks
+                                     .AppendChildrenAsync(o.Id.ToString(), new () {
+                                         Children = blocks
+                                     })
+                                     .Result
+                                     .Results;
+                         
+                         return o;
+                     })
+                     .Select(o => o)
                      .ToList();
     }
 
@@ -82,6 +116,8 @@ public class Crawler {
 
     private const string baseUrl = "http://dnd5e.wikidot.com";
 
+    private Converter MarkdownConverter { get;  } = new Converter();
+
     public IEnumerable<SpellTo> GetAllSpells() {
         using HttpClient http = new();
         string s = http.GetStringAsync($"{baseUrl}/spells").Result;
@@ -112,7 +148,6 @@ public class Crawler {
                   // Process Spell Link
                   .Select(o => ProcessSpellPage(o));
     }
-
 
     [SuppressMessage("ReSharper", "ReplaceWithSingleCallToSingle")]
     private SpellTo ProcessSpellPage(string uri) {
@@ -220,7 +255,7 @@ public class Crawler {
                           .Select(o => o.Replace("(Optional)", "").Trim())
                           .ToList();
 
-        spell.Description = pageContentElement.InnerText;
+        spell.Description = MarkdownConverter.Convert(pageContentElement.InnerHtml);
         spell.HtmlDescription = pageContentElement.InnerHtml;
         spell.WikiLink = uri;
         return spell;
@@ -228,26 +263,10 @@ public class Crawler {
 
 }
 
-public class TestNotionRepo : AbstractNotionRepository<SpellTo> {
-
-    public TestNotionRepo(INotionClient notionClient) : base(notionClient) {
-    }
-
-    public IReadOnlyList<SpellTo> GetAll() => RunQuery(new DatabasesQueryParameters()).ToList();
-    public SpellTo CreateOrUpdate(SpellTo value) {
-        if (value.Id == Guid.Empty) {
-            return Create(value);
-        } else {
-            return Update(value);
-        }
-    }
-
-}
-
 // TODO use schema to select the notion client
 //[Table("e1ba980b87eb4e87aec5da9d1e7f7195")] // Actual   
 [Table("c147d58e5b5d4cbd85d6780f5884ce0d")] // Test
-public class SpellTo : IEntity {
+public class SpellTo : IGuidEntity {
 
     public override string ToString() {
         return $"({Level}) {Name} [" + string.Join(", ", Components) + "]";
@@ -283,11 +302,10 @@ public class SpellTo : IEntity {
     [Column("Spell List", TypeName = nameof(PropertyValueType.MultiSelect))]
     public List<string> SpellList { get; set; } = new();
 
-
     [Column("Description", TypeName = nameof(PropertyValueType.RichText))]
     public string Description { get; set; } = string.Empty;
 
-    [Column("HtmlDescription", TypeName = nameof(PropertyValueType.RichText))]
+//    [Column("HtmlDescription", TypeName = nameof(PropertyValueType.RichText))]
     public string HtmlDescription { get; set; } = string.Empty;
 
     [Column("Wiki Link", TypeName = nameof(PropertyValueType.Url))]

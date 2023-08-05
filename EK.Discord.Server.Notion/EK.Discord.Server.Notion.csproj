@@ -21,6 +21,7 @@
     <!-- Other Dependencies -->
     <ItemGroup>
         <PackageReference Include="Notion.Net" />
+        <PackageReference Include="ReverseMarkdown" />
     </ItemGroup>
 
     <!-- Sister Projects -->

@@ -8,7 +8,10 @@
     <PackageVersion Include="Discord.Net" Version="3.10.0" />
     <PackageVersion Include="Notion.Net" Version="4.1.0" />
     <PackageVersion Include="CsvHelper" Version="30.0.1" />
+    
+    <!-- Utility -->
     <PackageVersion Include="HtmlAgilityPack" Version="1.11.51" />
+    <PackageVersion Include="ReverseMarkdown" Version="3.25.0" />
     
     <!-- Logging -->
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="7.0.0" />
@@ -42,8 +45,6 @@
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.5" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="7.0.5" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.0" PrivateAssets="all" />
-    
-    <!--Localization-->
     <PackageVersion Include="Microsoft.Extensions.Localization" Version="7.0.5" />
     
     <!-- Tests -->
