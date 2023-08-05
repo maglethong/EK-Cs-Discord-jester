@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using EK.Discord.Common.Base.Component.Persistence;
+using EK.Discord.Server.Notion.Base.Api;
 using EK.Discord.Server.Notion.Base.Persistence;
 using HtmlAgilityPack;
 using Notion.Client;
@@ -14,16 +16,25 @@ namespace EK.Discord.Server;
 [SuppressMessage("ReSharper", "ReplaceWithSingleCallToSingleOrDefault")]
 public class Crawler {
 
-    private NotionRepository<SpellTo> Repo { get; }
+    private IDataAccessObject<SpellTo, Guid> Dao { get; }
     protected INotionClient NotionClient { get; }
 
     public Crawler(IServiceProvider services) {
         NotionClient = services.GetService<INotionClient>()!;
-        Repo = new NotionRepository<SpellTo>(NotionClient);
+        Dao = new SimpleNotionCrudRepository<SpellTo>(NotionClient, services.GetService<INotionEntitySerializer<SpellTo>>()!);
+    }
+    
+
+    private SpellTo CreateOrUpdate(SpellTo value) {
+        if (value.Id == Guid.Empty) {
+            return Dao.Create(value);
+        } else {
+            return Dao.Update(value);
+        }
     }
 
     public void Run() {
-        IDictionary<string, SpellTo> existing = Repo.Request()
+        IDictionary<string, SpellTo> existing = Dao.ReadAll()
                                                     .ToDictionary(o => o.Name.Trim().ToLowerInvariant(), o=>o);
         var spells = GetAllSpells()
                      .Select(o => new {
@@ -33,7 +44,7 @@ public class Crawler {
                      .Select(o => Merge(o.oldVal, o.newVal))
                      .Where(o => o != null)
                      .Cast<SpellTo>()
-                     .Select(o => Repo.CreateOrUpdate(o!))
+                     .Select(o => CreateOrUpdate(o!))
                      // TODO Move this logic to CreateOrUpdate
                      // TODO Add Custom Attributes for Notion on Entity
                      // TODO Create attribute for page content as Markdown
@@ -302,7 +313,8 @@ public class SpellTo : IGuidEntity {
     [Column("Spell List", TypeName = nameof(PropertyValueType.MultiSelect))]
     public List<string> SpellList { get; set; } = new();
 
-    [Column("Description", TypeName = nameof(PropertyValueType.RichText))]
+    [NotMapped]
+    [PageContent]
     public string Description { get; set; } = string.Empty;
 
 //    [Column("HtmlDescription", TypeName = nameof(PropertyValueType.RichText))]
