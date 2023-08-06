@@ -85,7 +85,6 @@ public class Crawler {
                                    o.Property.SetValue(oldVal, o.NewPropValue);
                                    return o.Property.Name;
                                })
-                               .Take(20)
                                .ToList();
         oldVal.Description.MarkdownDescription = newVal.Description.MarkdownDescription;
 
