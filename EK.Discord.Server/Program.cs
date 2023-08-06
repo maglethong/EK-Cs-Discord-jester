@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
+using Discord;
 using EK.Discord.Server.Bot.Base.DependencyInjection;
 using EK.Discord.Server.Base.Configuration;
+using EK.Discord.Server.Experimental;
 using EK.Discord.Server.Notion.Base;
 using EK.Discord.Server.TemplateComponent;
 
@@ -60,15 +62,15 @@ public class Program {
                    endpoints.MapFallbackToFile("{**slug}", "index.html");
                }
            );
+
+        new Crawler(app.Services).Run();
         
         // Start Discord Client
 //        app.Services
 //           .GetService<IDiscordClient>()
 //           ?.StartAsync();
-
-        new Crawler(app.Services).Run();
-        
-        app.Run();
+//        
+//        app.Run();
     }
 
 }

@@ -26,9 +26,4 @@ public interface INotionPageContentSerializer<TEntity> {
     /// <returns> The deserialized result </returns>
     public TEntity Deserialize(Guid pageId, IEnumerable<IBlock> raw);
 
-//    /// <inheritdoc cref="Deserialize(Guid, IEnumerable{IBlock})"/>
-//    /// <param name="page"> <see cref="Page"/> object received from requests to <see cref="INotionClient"/>. </param>
-//    public TEntity Deserialize(Page page) {
-//        return Deserialize(Guid.Parse(page.Id), page.Properties);
-
 }

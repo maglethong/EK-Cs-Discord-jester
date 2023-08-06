@@ -10,9 +10,8 @@ using HtmlAgilityPack;
 using Notion.Client;
 using ReverseMarkdown;
 
-namespace EK.Discord.Server;
+namespace EK.Discord.Server.Experimental;
 
-[SuppressMessage("ReSharper", "ConvertToPrimaryConstructor", Justification = "Horrible Syntax")]
 [SuppressMessage("ReSharper", "ReplaceWithSingleCallToSingleOrDefault")]
 public class Crawler {
 
@@ -25,7 +24,7 @@ public class Crawler {
         Dao = new NotionTableDao<SpellTo>(NotionClient, services.GetService<INotionEntitySerializer<SpellTo>>()!);
         DescriptionDao = new NotionPageContentDao<SpellDescriptionTo>(NotionClient, new DefaultNotionPageContentSerializer<SpellDescriptionTo>());
     }
-    
+
 
     private SpellTo CreateOrUpdate(SpellTo value) {
         SpellTo ret;
@@ -40,24 +39,38 @@ public class Crawler {
         ret.Description.MarkdownDescription = value.Description.MarkdownDescription;
         ret.Description.Id = ret.Id;
         DescriptionDao.Update(ret.Description);
-        Console.WriteLine(ret.ToString());
         return ret;
     }
 
     public void Run() {
+        string filePath = "./Finished.txt";
+        IList<string> finishedSpellUrls = new List<string>();
+        if (File.Exists(filePath)) {
+            finishedSpellUrls = File.ReadAllLines(filePath);
+        }
+        using Stream finishedUrlsStream = new FileStream(filePath, FileMode.Append);
+        using StreamWriter finishedUrlsStreamWriter = new StreamWriter(finishedUrlsStream);
+
         IDictionary<string, SpellTo> existing = Dao.ReadAll()
-                                                    .ToDictionary(o => o.Name.Trim().ToLowerInvariant(), o=>o);
-        var spells = GetAllSpells()
+                                                   .ToDictionary(o => o.Name.Trim().ToLowerInvariant(), o => o);
+        var spells = GetAllSpells(finishedSpellUrls)
                      .Select(o => new {
-                         oldVal = existing.TryGetValue(o.Name.Trim().ToLowerInvariant(), out SpellTo? value) ? value : null,
-                         newVal = o,
-                     })
+                             oldVal = existing.TryGetValue(o.Name.Trim().ToLowerInvariant(), out SpellTo? value) ? value : null,
+                             newVal = o,
+                         }
+                     )
                      .Select(o => Merge(o.oldVal, o.newVal))
                      .Where(o => o != null)
                      .Cast<SpellTo>()
                      .Select(o => CreateOrUpdate(o!))
+                     .Select(o => {
+                             finishedUrlsStreamWriter.WriteLine(o.WikiLink);
+                             finishedUrlsStreamWriter.Flush();
+                             Console.WriteLine(o.ToString());
+                             return o;
+                         }
+                     )
                      .Select(o => o.ToString())
-                     .Select(o => o)
                      .ToList();
 
         int i = 0;
@@ -76,22 +89,24 @@ public class Crawler {
                                )
                                .Where(o => o.Attribute != null)
                                .Select(o => new {
-                                   o.Property,
-                                   OldPropValue = o.Property.GetValue(oldVal),
-                                   NewPropValue = o.Property.GetValue(newVal),
-                               })
+                                       o.Property,
+                                       OldPropValue = o.Property.GetValue(oldVal),
+                                       NewPropValue = o.Property.GetValue(newVal),
+                                   }
+                               )
                                .Where(o => !AreEqual(o.OldPropValue, o.NewPropValue))
                                .Select(o => {
-                                   o.Property.SetValue(oldVal, o.NewPropValue);
-                                   return o.Property.Name;
-                               })
+                                       o.Property.SetValue(oldVal, o.NewPropValue);
+                                       return o.Property.Name;
+                                   }
+                               )
                                .ToList();
         oldVal.Description.MarkdownDescription = newVal.Description.MarkdownDescription;
 
 //        return changed.Any() ? oldVal : null;
         return oldVal;
     }
-    
+
     private static bool AreEqual(object? a, object? b) {
         if (a == null && b == null) {
             return true;
@@ -105,17 +120,16 @@ public class Crawler {
         if (a.GetType().IsAssignableTo(typeof(IEnumerable)) && b.GetType().IsAssignableTo(typeof(IEnumerable))) {
             IEnumerable<object?> ae = ((IEnumerable) a).Cast<object?>().ToList();
             IEnumerable<object?> be = ((IEnumerable) b).Cast<object?>().ToList();
-            return ae.All(o => be.Any(k => AreEqual(k, o))) && 
-                   be.All(o => ae.Any(k => AreEqual(k, o)));
+            return ae.All(o => be.Any(k => AreEqual(k, o))) && be.All(o => ae.Any(k => AreEqual(k, o)));
         }
         return false;
     }
 
     private const string baseUrl = "http://dnd5e.wikidot.com";
 
-    private Converter MarkdownConverter { get;  } = new Converter();
+    private Converter MarkdownConverter { get; } = new Converter();
 
-    public IEnumerable<SpellTo> GetAllSpells() {
+    public IEnumerable<SpellTo> GetAllSpells(IList<string> skipUrls) {
         using HttpClient http = new();
         string s = http.GetStringAsync($"{baseUrl}/spells").Result;
         HtmlDocument doc = new HtmlDocument();
@@ -142,6 +156,7 @@ public class Crawler {
                   .Where(o => o != null)
                   .Select(o => o!.Value)
                   .Select(o => $"{baseUrl}{o}")
+                  .Where(o => !skipUrls.Contains(o))
                   // Process Spell Link
                   .Select(o => ProcessSpellPage(o));
     }
@@ -213,7 +228,7 @@ public class Crawler {
                                       .Replace("(", "")
                                       .Replace(")", "");
             spell.Components[i] = "M";
-            spell.Components.RemoveRange(i +1, spell.Components.Count -i -1);
+            spell.Components.RemoveRange(i + 1, spell.Components.Count - i - 1);
         }
 
         if (spell.Duration.Contains("Concentration", StringComparison.InvariantCultureIgnoreCase)) {
@@ -226,7 +241,7 @@ public class Crawler {
         if (levelAndSchool.Contains("Ritual", StringComparison.InvariantCultureIgnoreCase)) {
             spell.Components.Add("R");
         }
-        
+
         if (spell.MaterialComponent.Contains("gp")) {
             spell.Components.Add("GP");
         }
@@ -253,6 +268,7 @@ public class Crawler {
                           .ToList();
 
         spell.Description.MarkdownDescription = MarkdownConverter.Convert(pageContentElement.InnerHtml);
+
         spell.WikiLink = uri;
         return spell;
     }
@@ -260,17 +276,17 @@ public class Crawler {
 }
 
 public class SpellDescriptionTo : IGuidEntity {
-    
+
     [Key]
     public Guid Id { get; set; }
-    
+
     [FullPageMarkdownContent]
     public string MarkdownDescription { get; set; } = string.Empty;
+
 }
 
 // TODO use schema to select the notion client
-//[Table("e1ba980b87eb4e87aec5da9d1e7f7195")] // Actual   
-[Table("be23b20a591d4f1a8cbf8701430d172f")] // Test
+[Table("e1ba980b87eb4e87aec5da9d1e7f7195")] // Actual   
 public class SpellTo : IGuidEntity {
 
     public override string ToString() {

@@ -49,7 +49,7 @@ public class DefaultNotionPageContentSerializer<TEntity> : INotionPageContentSer
     public TEntity Deserialize(Guid pageId, IEnumerable<IBlock> raw) {
         TEntity ret = new();
         GetKeyProperty().SetValue(ret, pageId);
-        GetProperty().SetValue(ret, string.Join("\n", raw.Select(DeserializeBlock)));
+        GetProperty().SetValue(ret, string.Join("\n\n", raw.Select(DeserializeBlock)));
         return ret;
     }
 

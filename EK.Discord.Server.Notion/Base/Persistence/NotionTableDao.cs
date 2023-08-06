@@ -20,6 +20,7 @@ public class NotionTableDao<TEntity> : IDataAccessObject<TEntity, Guid>
     protected IPageParentInput DbPage { get; }
     protected PropertyInfo? PageContentProperty { get; }
 
+    /// <summary> Constructor </summary>
     public NotionTableDao(INotionClient notionClient, INotionEntitySerializer<TEntity> serializer) {
         NotionClient = notionClient;
         Serializer = serializer;
@@ -43,7 +44,7 @@ public class NotionTableDao<TEntity> : IDataAccessObject<TEntity, Guid>
         DbPage = new DatabaseParentInput() { DatabaseId = TableId.ToString() };
     }
 
-
+    /// <inheritdoc/>
     public TEntity Create(TEntity newEntry) {
         IDictionary<string, PropertyValue> serialized = Serializer.Serialize(newEntry);
         Page page = NotionClient.Pages
@@ -57,6 +58,7 @@ public class NotionTableDao<TEntity> : IDataAccessObject<TEntity, Guid>
         return Serializer.Deserialize(page);
     }
 
+    /// <inheritdoc/>
     public TEntity Read(Guid entityId) {
         Page page = NotionClient.Pages
                                 .RetrieveAsync(entityId.ToString())
@@ -64,6 +66,7 @@ public class NotionTableDao<TEntity> : IDataAccessObject<TEntity, Guid>
         return Serializer.Deserialize(page);
     }
 
+    /// <inheritdoc/>
     public IEnumerable<TEntity> ReadAll() {
         return NotionClient
                .Databases
@@ -77,6 +80,7 @@ public class NotionTableDao<TEntity> : IDataAccessObject<TEntity, Guid>
                .ToList();
     }
 
+    /// <inheritdoc/>
     public TEntity Update(TEntity value) {
         Page page = NotionClient.Pages
                                 .UpdateAsync(value.Id.ToString(),
@@ -86,14 +90,8 @@ public class NotionTableDao<TEntity> : IDataAccessObject<TEntity, Guid>
         return Serializer.Deserialize(page);
     }
 
-    public TEntity RequestPageContent(TEntity value) {
-        Page page = NotionClient.Pages
-                                .RetrieveAsync(value.Id.ToString())
-                                .Result;
-        return Serializer.Deserialize(page);
-    }
-
     // TODO Test
+    /// <inheritdoc/>
     public void Delete(Guid id) {
         NotionClient.Pages
                     .UpdateAsync(id.ToString(),
