@@ -26,7 +26,7 @@ public class DefaultNotionEntitySerializer<TEntity> : INotionEntitySerializer<TE
                .Select(o => new {
                        Attribute = o.Attribute!,
                        o.Property,
-                       IsPageContent = o.Attribute!.GetType().IsAssignableTo(typeof(PageContentAttribute)),
+                       IsPageContent = o.Attribute!.GetType().IsAssignableTo(typeof(FullPageMarkdownContentAttribute)),
                    }
                )
                .Where(o => !o.IsPageContent)
@@ -61,7 +61,7 @@ public class DefaultNotionEntitySerializer<TEntity> : INotionEntitySerializer<TE
             .Select(o => new {
                     Attribute = o.Attribute!,
                     o.Property,
-                    IsPageContent = o.Attribute!.GetType().IsAssignableTo(typeof(PageContentAttribute)),
+                    IsPageContent = o.Attribute!.GetType().IsAssignableTo(typeof(FullPageMarkdownContentAttribute)),
                 }
             )
             .Where(o => !o.IsPageContent)
@@ -154,9 +154,11 @@ public class DefaultNotionEntitySerializer<TEntity> : INotionEntitySerializer<TE
         return value.Type switch {
             PropertyValueType.Title => ((TitlePropertyValue) value).Title
                                                                    .Select(o=>o.PlainText)
+                                                                   .DefaultIfEmpty(string.Empty)
                                                                    .Aggregate((a, b) => $"{a}\n{b}"),
             PropertyValueType.RichText => ((RichTextPropertyValue) value).RichText
                                                                          .Select(o=>o.PlainText)
+                                                                         .DefaultIfEmpty(string.Empty)
                                                                          .Aggregate((a, b) => $"{a}\n{b}"),
             PropertyValueType.Select => ((SelectPropertyValue) value).Select?.Name,
             PropertyValueType.Url => ((UrlPropertyValue) value).Url,

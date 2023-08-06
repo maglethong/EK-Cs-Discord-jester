@@ -17,20 +17,31 @@ namespace EK.Discord.Server;
 public class Crawler {
 
     private IDataAccessObject<SpellTo, Guid> Dao { get; }
+    private IDataAccessObject<SpellDescriptionTo, Guid> DescriptionDao { get; }
     protected INotionClient NotionClient { get; }
 
     public Crawler(IServiceProvider services) {
         NotionClient = services.GetService<INotionClient>()!;
-        Dao = new SimpleNotionCrudRepository<SpellTo>(NotionClient, services.GetService<INotionEntitySerializer<SpellTo>>()!);
+        Dao = new NotionTableDao<SpellTo>(NotionClient, services.GetService<INotionEntitySerializer<SpellTo>>()!);
+        DescriptionDao = new NotionPageContentDao<SpellDescriptionTo>(NotionClient, new DefaultNotionPageContentSerializer<SpellDescriptionTo>());
     }
     
 
     private SpellTo CreateOrUpdate(SpellTo value) {
+        SpellTo ret;
+        bool isNew = false;
+        string name = value.ToString();
         if (value.Id == Guid.Empty) {
-            return Dao.Create(value);
+            isNew = true;
+            ret = Dao.Create(value);
         } else {
-            return Dao.Update(value);
+            ret = Dao.Update(value);
         }
+        ret.Description.MarkdownDescription = value.Description.MarkdownDescription;
+        ret.Description.Id = ret.Id;
+        DescriptionDao.Update(ret.Description);
+        Console.WriteLine(ret.ToString());
+        return ret;
     }
 
     public void Run() {
@@ -45,37 +56,11 @@ public class Crawler {
                      .Where(o => o != null)
                      .Cast<SpellTo>()
                      .Select(o => CreateOrUpdate(o!))
-                     // TODO Move this logic to CreateOrUpdate
-                     // TODO Add Custom Attributes for Notion on Entity
-                     // TODO Create attribute for page content as Markdown
-                     .Select(o => {
-                         var blocks = o.Description
-                          .Split("\n")
-                          .Where(k => !string.IsNullOrWhiteSpace(k))
-                          .Select(k => new ParagraphBlock() {
-                                      Paragraph = new() {
-                                          RichText = k
-                                                  .Split("\n")
-                                                  // TODO Parse Markdown to Notion blocks (Need to convert and set properties)
-                                                  .Select(p => new RichTextText() { Text = new Text() { Content = p } })
-                                                  .Cast<RichTextBase>()
-                                                  .ToList()
-                                      }
-                                  }
-                          )
-                          .ToList();
-                         
-                         var updated = NotionClient.Blocks
-                                     .AppendChildrenAsync(o.Id.ToString(), new () {
-                                         Children = blocks
-                                     })
-                                     .Result
-                                     .Results;
-                         
-                         return o;
-                     })
+                     .Select(o => o.ToString())
                      .Select(o => o)
                      .ToList();
+
+        int i = 0;
     }
 
     private static SpellTo? Merge(SpellTo? oldVal, SpellTo newVal) {
@@ -100,10 +85,12 @@ public class Crawler {
                                    o.Property.SetValue(oldVal, o.NewPropValue);
                                    return o.Property.Name;
                                })
+                               .Take(20)
                                .ToList();
+        oldVal.Description.MarkdownDescription = newVal.Description.MarkdownDescription;
 
-
-        return changed.Any() ? oldVal : null;
+//        return changed.Any() ? oldVal : null;
+        return oldVal;
     }
     
     private static bool AreEqual(object? a, object? b) {
@@ -252,7 +239,7 @@ public class Crawler {
         } else if (spell.CastTime.Contains("Bonus Action", StringComparison.InvariantCultureIgnoreCase)) {
             spell.CastTime = "Bonus Action";
         } else if (spell.CastTime.Contains("Action", StringComparison.InvariantCultureIgnoreCase)) {
-            spell.CastTime = "Bonus Action";
+            spell.CastTime = "Action";
         } else {
             spell.CastTime = spell.CastTime.ToLowerInvariant();
         }
@@ -266,17 +253,25 @@ public class Crawler {
                           .Select(o => o.Replace("(Optional)", "").Trim())
                           .ToList();
 
-        spell.Description = MarkdownConverter.Convert(pageContentElement.InnerHtml);
-        spell.HtmlDescription = pageContentElement.InnerHtml;
+        spell.Description.MarkdownDescription = MarkdownConverter.Convert(pageContentElement.InnerHtml);
         spell.WikiLink = uri;
         return spell;
     }
 
 }
 
+public class SpellDescriptionTo : IGuidEntity {
+    
+    [Key]
+    public Guid Id { get; set; }
+    
+    [FullPageMarkdownContent]
+    public string MarkdownDescription { get; set; } = string.Empty;
+}
+
 // TODO use schema to select the notion client
 //[Table("e1ba980b87eb4e87aec5da9d1e7f7195")] // Actual   
-[Table("c147d58e5b5d4cbd85d6780f5884ce0d")] // Test
+[Table("be23b20a591d4f1a8cbf8701430d172f")] // Test
 public class SpellTo : IGuidEntity {
 
     public override string ToString() {
@@ -285,6 +280,9 @@ public class SpellTo : IGuidEntity {
 
     [Key]
     public Guid Id { get; set; }
+
+    [PageContent]
+    public SpellDescriptionTo Description { get; set; } = new();
 
     [Column("Name", TypeName = nameof(PropertyValueType.Title))]
     public string Name { get; set; } = string.Empty;
@@ -312,13 +310,6 @@ public class SpellTo : IGuidEntity {
 
     [Column("Spell List", TypeName = nameof(PropertyValueType.MultiSelect))]
     public List<string> SpellList { get; set; } = new();
-
-    [NotMapped]
-    [PageContent]
-    public string Description { get; set; } = string.Empty;
-
-//    [Column("HtmlDescription", TypeName = nameof(PropertyValueType.RichText))]
-    public string HtmlDescription { get; set; } = string.Empty;
 
     [Column("Wiki Link", TypeName = nameof(PropertyValueType.Url))]
     public string WikiLink { get; set; } = string.Empty;

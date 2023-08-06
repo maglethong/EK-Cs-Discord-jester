@@ -14,10 +14,10 @@ namespace EK.Discord.Server.Notion.Base;
 public static class NotionDependencyInjectionConfiguration {
 
     /// <summary>
-    ///     Adds all required services for interacting with notion through <see cref="INotionClient"/> or <see cref="SimpleNotionCrudRepository{TEntity}"/>
+    ///     Adds all required services for interacting with notion through <see cref="INotionClient"/> or <see cref="NotionTableDao{TEntity}"/>
     /// </summary>
     /// <remarks>
-    ///     You still need to manually add your own implementation of the <see cref="SimpleNotionCrudRepository{TEntity}"/>.
+    ///     You still need to manually add your own implementation of the <see cref="NotionTableDao{TEntity}"/>.
     ///     Example below:
     /// <p/>
     ///     <code>
@@ -26,22 +26,18 @@ public static class NotionDependencyInjectionConfiguration {
     /// </remarks>
     public static IServiceCollection AddNotion(this IServiceCollection services) {
         services.AddSingleton<INotionClient>(sp => {
-                               NotionClientLogging.ConfigureLogger(sp.GetService<ILoggerFactory>());
-                               return NotionClientFactory.Create(sp.GetService<ClientOptions>());
-                           }
-                       );
-        services.TryAddSingleton<ClientOptions>(sp => {
-                        string token = sp.GetService<ISecretsManager>()!
-                                         .GetSecret("Notion:Token");
-                        if (string.IsNullOrWhiteSpace(token)) {
-                            sp.GetService<ILogger<INotionClient>>()!
-                              .LogError("Failed to log in to Notion due to Missing Token");
-                        }
-                        return new ClientOptions() {
-                            AuthToken = token
-                        };
-                    }
-                );
+                string token = sp.GetService<ISecretsManager>()!
+                                 .GetSecret("Notion:Token");
+                
+                if (string.IsNullOrWhiteSpace(token)) {
+                    sp.GetService<ILogger<INotionClient>>()!
+                      .LogError("Failed to log in to Notion due to Missing Token");
+                }
+
+                NotionClientLogging.ConfigureLogger(sp.GetService<ILoggerFactory>());
+                return NotionClientFactory.Create(new () { AuthToken = token });
+            }
+        );
         services.TryAddSingleton(typeof(INotionEntitySerializer<>), typeof(DefaultNotionEntitySerializer<>));
         return services;
     }
