@@ -62,15 +62,13 @@ public class Program {
                    endpoints.MapFallbackToFile("{**slug}", "index.html");
                }
            );
-
-        new Crawler(app.Services).Run();
         
         // Start Discord Client
-//        app.Services
-//           .GetService<IDiscordClient>()
-//           ?.StartAsync();
-//        
-//        app.Run();
+        app.Services
+           .GetService<IDiscordClient>()
+           ?.StartAsync();
+        
+        app.Run();
     }
 
 }

@@ -72,8 +72,6 @@ public class Crawler {
                      )
                      .Select(o => o.ToString())
                      .ToList();
-
-        int i = 0;
     }
 
     private static SpellTo? Merge(SpellTo? oldVal, SpellTo newVal) {
@@ -141,7 +139,6 @@ public class Crawler {
                   .ParentNode
                   // List all table tab contents
                   .Elements("div")
-//                  .AsParallel()
                   .Select(o => o.Element("div"))
                   .Select(o => o.Element("table"))
                   // Flatten Table Body
@@ -214,9 +211,9 @@ public class Crawler {
                              .Skip(1)
                              .ToArray();
         spell.CastTime = split[0].Split(": ")[1].Trim();
-        spell.Range = split[1].Split(": ")[1].Trim();
+        spell.Range = split[1].Split(": ")[1].Trim().Replace(",", "");
         spell.Components = split[2].Split(": ")[1]
-                                   .Split(", ")
+                                   .Split(",")
                                    .Select(o => o.Trim())
                                    .ToList();
         spell.Duration = split[3].Split(": ")[1].Replace("up to ", "").Trim();
@@ -263,7 +260,7 @@ public class Crawler {
                           .Last()
                           .InnerText
                           .Replace("Spell Lists. ", string.Empty, StringComparison.InvariantCultureIgnoreCase)
-                          .Split(", ")
+                          .Split(",")
                           .Select(o => o.Replace("(Optional)", "").Trim())
                           .ToList();
 
