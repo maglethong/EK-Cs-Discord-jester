@@ -2,7 +2,8 @@ using System.Diagnostics.CodeAnalysis;
 using Discord;
 using EK.Discord.Server.Bot.Base.DependencyInjection;
 using EK.Discord.Server.Base.Configuration;
-using EK.Discord.Server.Base.Notion;
+using EK.Discord.Server.Experimental;
+using EK.Discord.Server.Notion.Base;
 using EK.Discord.Server.TemplateComponent;
 
 namespace EK.Discord.Server;
@@ -66,7 +67,7 @@ public class Program {
         app.Services
            .GetService<IDiscordClient>()
            ?.StartAsync();
-
+        
         app.Run();
     }
 

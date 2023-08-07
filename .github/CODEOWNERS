@@ -1,0 +1,30 @@
+﻿# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Setup and infra content
+/.github/                                       @maglethong
+/.idea/                                         @maglethong
+/.run/                                          @maglethong
+/IAC/                                           @maglethong
+*.csproj                                        @maglethong
+*.gitignore                                     @maglethong
+*.editorconfig                                  @maglethong
+CODE_OF_CONDUCT.md                              @maglethong
+Directory.Build.props                           @maglethong
+Directory.Packages.props                        @maglethong
+Dockerfile                                      @maglethong
+EK.Discord.sln                                  @maglethong
+LICENSE                                         @maglethong
+NuGet.config                                    @maglethong
+README.md                                       @maglethong
+**/Properties/                                  @maglethong
+**/*.csproj                                     @maglethong
+
+# Notion Wrapper Project
+/EK.Discord.Server.Notion/                      @maglethong
+
+# Core Server Configuration
+/EK.Discord.Server/appsettings*.json            @maglethong
+/EK.Discord.Server/Program.cs                   @maglethong
+
+# Framework Content                 
+**/Base/ @maglethong                            @maglethong

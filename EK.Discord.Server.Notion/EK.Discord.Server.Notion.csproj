@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <RuntimeIdentifiers>win10-x64;linux-x64</RuntimeIdentifiers>
-
     </PropertyGroup>
 
     <!-- Microsoft Internal -->
@@ -21,13 +20,13 @@
 
     <!-- Other Dependencies -->
     <ItemGroup>
-        <PackageReference Include="Discord.Net" />
+        <PackageReference Include="Notion.Net" />
+        <PackageReference Include="ReverseMarkdown" />
     </ItemGroup>
 
     <!-- Sister Projects -->
     <ItemGroup>
         <ProjectReference Include="..\EK.Discord.Common\EK.Discord.Common.csproj" />
-        <ProjectReference Include="..\EK.Discord.Server.Notion\EK.Discord.Server.Notion.csproj" />
     </ItemGroup>
-    
+
 </Project>
