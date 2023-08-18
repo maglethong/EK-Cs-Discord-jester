@@ -29,9 +29,10 @@
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
     <PackageVersion Include="EFCore.BulkExtensions" Version="7.1.0" />
     
-    <!-- Azure Key Vault -->
+    <!-- Azure Services -->
     <PackageVersion Include="Microsoft.Extensions.Azure" Version="1.6.3" />
     <PackageVersion Include="Azure.Security.KeyVault.Secrets" Version="4.5.0" />
+    <PackageVersion Include="Azure.Data.Tables" Version="12.8.0" />
 
     <!-- Other MS Packages -->
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="7.0.0" />

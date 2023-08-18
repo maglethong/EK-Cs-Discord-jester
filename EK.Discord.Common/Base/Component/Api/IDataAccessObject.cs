@@ -1,6 +1,7 @@
 ﻿using EK.Discord.Common.Base.Component.Common;
+using EK.Discord.Common.Base.Component.Persistence;
 
-namespace EK.Discord.Common.Base.Component.Persistence;
+namespace EK.Discord.Common.Base.Component.Api;
 
 /// <summary>
 ///     Interface for defining a DataAccessObject for a known <see cref="IEntity"/> type.

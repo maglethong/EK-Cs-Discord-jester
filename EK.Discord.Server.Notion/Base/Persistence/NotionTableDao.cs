@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
+using EK.Discord.Common.Base.Component.Api;
 using EK.Discord.Common.Base.Component.Persistence;
 using EK.Discord.Server.Notion.Base.Api;
 using Notion.Client;

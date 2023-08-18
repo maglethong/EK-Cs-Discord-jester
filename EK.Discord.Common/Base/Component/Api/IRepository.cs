@@ -1,4 +1,5 @@
-﻿using EK.Discord.Common.Base.Component.Common;
+﻿using EK.Discord.Common.Base.Component.Api;
+using EK.Discord.Common.Base.Component.Common;
 
 namespace EK.Discord.Common.Base.Component.Persistence;
 
@@ -7,7 +8,7 @@ namespace EK.Discord.Common.Base.Component.Persistence;
 /// </summary>
 /// <seealso cref="IRepository"/>
 /// <seealso cref="IRepository{TEntity}"/>
-/// <seealso cref="IDataAccessObject{TEntity, TKey}"/>
+/// <seealso cref="IDataAccessObject{TEntity,TKey}"/>
 /// <seealso cref="IEntity"/>
 /// <seealso cref="IEntity{Tkey}"/>
 /// <seealso href="https://www.baeldung.com/java-dao-vs-repository"> Repository vs DataAccessObject pattern reference </seealso>

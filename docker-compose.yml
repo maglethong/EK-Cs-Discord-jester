@@ -1,0 +1,15 @@
+﻿version: '2'
+
+services:
+    
+    server:
+        build: .
+        ports:
+            - "5000:5000"
+        depends_on:
+            - azurite
+        
+    azurite:
+        image: azurite:latest
+        ports:
+            - "5432:5432"
