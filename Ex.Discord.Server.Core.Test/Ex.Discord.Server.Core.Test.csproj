@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RuntimeIdentifiers>win10-x64;linux-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Moq" />
+    <Reference Include="xunit" />
+    <Reference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <!-- Sister Projects -->
+  <ItemGroup>
+    <ProjectReference Include="..\EK.Discord.Server.Core\EK.Discord.Server.Core.csproj" />
+  </ItemGroup>
+  
+</Project>

@@ -26,7 +26,7 @@
 
     <!-- Sister Projects -->
     <ItemGroup>
-        <ProjectReference Include="..\EK.Discord.Common\EK.Discord.Common.csproj" />
+        <ProjectReference Include="..\EK.Discord.Common.Core\EK.Discord.Common.Core.csproj" />
     </ItemGroup>
 
 </Project>

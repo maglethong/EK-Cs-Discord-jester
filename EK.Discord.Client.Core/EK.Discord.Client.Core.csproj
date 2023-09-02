@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <!-- Microsoft Internal -->
+  <PropertyGroup>
+    <RootNamespace>EK.Discord.Client</RootNamespace>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />
@@ -8,7 +11,7 @@
 
   <!-- Sister Projects -->
   <ItemGroup>
-    <ProjectReference Include="..\EK.Discord.Common\EK.Discord.Common.csproj" />
+    <ProjectReference Include="..\EK.Discord.Common.Core\EK.Discord.Common.Core.csproj" />
   </ItemGroup>
 
 </Project>

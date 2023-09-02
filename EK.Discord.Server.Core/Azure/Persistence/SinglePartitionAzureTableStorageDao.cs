@@ -28,16 +28,19 @@ public class SinglePartitionAzureTableStorageDao<TEntity> : AbstractComponentPar
         Client = client.GetTableClient(TableName);
     }
 
+    /// <inheritdoc cref="IDataAccessObject{TEntity, Guid}.Create"/>
     public TEntity Create(TEntity obj) {
         Client.AddEntity(Convert(obj));
         return Read(obj.Id);
     }
 
+    /// <inheritdoc cref="IDataAccessObject{TEntity, Guid}.Read"/>
     public TEntity Read(Guid id) {
         Response<TableEntity>? response = Client.GetEntity<TableEntity>(CONST_PARTITION_KEY, id.ToString());
         return Convert(response.Value) ?? throw new Exception("TBD"); // TODO
     }
 
+    /// <inheritdoc cref="IDataAccessObject{TEntity, Guid}.ReadAll"/>
     public IEnumerable<TEntity> ReadAll() {
         return Client
                .Query<TableEntity>()
@@ -47,11 +50,13 @@ public class SinglePartitionAzureTableStorageDao<TEntity> : AbstractComponentPar
                .Cast<TEntity>();
     }
 
+    /// <inheritdoc cref="IDataAccessObject{TEntity, Guid}.Update"/>
     public TEntity Update(TEntity obj) {
         Client.UpdateEntity(Convert(obj), ETag.All, TableUpdateMode.Replace);
         return Read(obj.Id);
     }
 
+    /// <inheritdoc cref="IDataAccessObject{TEntity, Guid}.Delete"/>
     public void Delete(Guid id) {
         Client.DeleteEntity(CONST_PARTITION_KEY, id.ToString(), ETag.All);
     }

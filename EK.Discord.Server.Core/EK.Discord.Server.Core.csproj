@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <RuntimeIdentifiers>win10-x64;linux-x64</RuntimeIdentifiers>
+    <RootNamespace>EK.Discord.Server</RootNamespace>
   </PropertyGroup>
   
   <!-- Microsoft Internal -->
@@ -20,8 +21,8 @@
   <ItemGroup>
     <ProjectReference Include="..\EK.Discord.Server.Bot\EK.Discord.Server.Bot.csproj" />
     <ProjectReference Include="..\EK.Discord.Server.Notion\EK.Discord.Server.Notion.csproj" />
-    <ProjectReference Include="..\EK.Discord.Client\EK.Discord.Client.csproj" />
-    <ProjectReference Include="..\EK.Discord.Common\EK.Discord.Common.csproj" />
+    <ProjectReference Include="..\EK.Discord.Client.Core\EK.Discord.Client.Core.csproj" />
+    <ProjectReference Include="..\EK.Discord.Common.Core\EK.Discord.Common.Core.csproj" />
   </ItemGroup>
 
 </Project>
